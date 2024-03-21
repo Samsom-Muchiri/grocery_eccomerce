@@ -1,0 +1,112 @@
+:root {
+  --color1: #f8f8f8;
+  --color2: #baf8ba;
+  --color3: #7cf87c;
+  --color4: #3ef83e;
+  --color5: #00f800;
+  --overlay: rgba(0, 0, 0, 0.184);
+}
+nav {
+  position: sticky;
+  top: 0%;
+  left: 0%;
+  z-index: 100;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  width: 100vw;
+  background-color: white;
+}
+nav h1 {
+  margin: 0%;
+}
+.site-logo {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+.mobile-menu {
+  display: none;
+}
+nav ul {
+  list-style: none;
+}
+.nav-links {
+  display: flex;
+  gap: 1rem;
+}
+.nav-links li {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  cursor: pointer;
+}
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.nav-actions li {
+  cursor: pointer;
+}
+.cart-icon {
+  position: relative;
+  margin-right: 0.3rem;
+}
+.cart-icon::after {
+  content: attr(datacount);
+  display: block;
+  border-radius: 50%;
+  position: absolute;
+  width: 2rem;
+  height: 2rem;
+  top: -0.8rem;
+  right: -2rem;
+}
+.nl-logo {
+  display: none;
+}
+@media (max-width: 800px) {
+  .mobile-menu {
+    display: block;
+  }
+  nav {
+    justify-content: space-between;
+  }
+  .nav-actions {
+    margin: 0.5rem 0;
+  }
+  .nav-links-cnt {
+    position: fixed;
+    top: 0%;
+    left: 0%;
+    background-color: var(--overlay);
+    width: 100vw;
+    height: 100vh;
+    transform: translateX(-100%);
+    opacity: 0;
+    transition: 0.3s ease-in;
+  }
+  .nav-links {
+    display: block;
+    width: 200px;
+    height: 100vh;
+    background-color: white;
+    padding: 0%;
+    margin: 0%;
+  }
+  .nav-links li {
+    justify-content: space-between;
+    padding: 0.3rem 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+  .nl-logo {
+    display: block;
+    margin-bottom: 1rem;
+  }
+  .nl-logo h1 {
+    margin: 0%;
+  }
+}
