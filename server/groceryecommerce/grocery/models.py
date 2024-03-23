@@ -8,9 +8,14 @@ class User(AbstractUser):
     address = models.CharField(max_length=255, blank=True, null=True)
     phone_number = models.CharField(max_length=20, blank=True, null=True)
 
-    # unique related_name attributes for groups and user_permissions fields
+    # # unique related_name attributes for groups and user_permissions fields
     # groups = models.ManyToManyField('Group', related_name='grocery_users')
     # user_permissions = models.ManyToManyField('Permission', related_name='grocery_users')
+
+class Payment(models.Model):
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(max_length=20, choices=[('pending', 'Pending'), ('successful', 'Successful'), ('failed', 'Failed')])
 
 class Order(models.Model):
     STATUS_CHOICES = [
@@ -27,6 +32,7 @@ class Order(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     products = models.ManyToManyField('Product', related_name='orders')
+    payment = models.ForeignKey(Payment, on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
         return f"Order #{self.id} - {self.user.username}"
@@ -52,4 +58,20 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
-        
+
+
+class CreditCardPayment(Payment):
+    card_number = models.CharField(max_length=16)
+    expiration_date = models.DateField()
+    security_code = models.CharField(max_length=3)
+
+class MobileMoneyPayment(Payment):
+    phone_payment_number = models.CharField(max_length=20)
+    provider = models.CharField(max_length=30)
+
+
+class Delivery(models.Model):
+    address = models.CharField(max_length=255)
+    delivery_fee = models.DecimalField(max_digits=10, decimal_places=2)
+    status = models.CharField(max_length=20, choices=[('pending', 'Pending'), ('shipped', 'Shipped'), ('delivered', 'Delivered')])
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
