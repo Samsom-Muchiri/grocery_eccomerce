@@ -18,9 +18,44 @@ def list_products(request):
 
 
 def create_order(request):
-    # Logic to create order
-    return JsonResponse({'success': True})
+    if request.method == 'POST':
+        try:
+            # Parse JSON data from frontend
+            order_data = json.loads(request.body.decode('utf-8'))
+            products = order_data.get('products', [])
 
+            # Calculate total price
+            total_price = 0
+            for product_id in products:
+                try:
+                    product = Product.objects.get(id=product_id)
+                    total_price += product.price
+                except Product.DoesNotExist:
+                    # Handle case where product doesn't exist
+                    pass
+            
+            # Create order
+            order = Order.objects.create(
+                user=request.user,
+                total_price=total_price,
+                status='pending'  # Default status
+            )
+
+            # Add products to order
+            for product_id in products:
+                try:
+                    product = Product.objects.get(id=product_id)
+                    order.products.add(product)
+                except Product.DoesNotExist:
+                    # case where product doesn't exist
+                    pass
+            
+            return JsonResponse({'success': True, 'order_id': order.id})
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+    else:
+        return JsonResponse({'error': 'Only POST requests are allowed'}, status=405)
+    
 def view_order(request, order_id):
     try:
         order = Order.objects.get(id=order_id)
@@ -33,3 +68,4 @@ def view_order(request, order_id):
         return JsonResponse(data)
     except Order.DoesNotExist:
         return JsonResponse({'error': 'Order not found'}, status=404)
+    
