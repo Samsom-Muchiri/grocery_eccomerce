@@ -8,10 +8,6 @@ class User(AbstractUser):
     address = models.CharField(max_length=255, blank=True, null=True)
     phone_number = models.CharField(max_length=20, blank=True, null=True)
 
-    # # unique related_name attributes for groups and user_permissions fields
-    # groups = models.ManyToManyField('Group', related_name='grocery_users')
-    # user_permissions = models.ManyToManyField('Permission', related_name='grocery_users')
-
 class Payment(models.Model):
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     timestamp = models.DateTimeField(auto_now_add=True)
