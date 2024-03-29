@@ -124,3 +124,72 @@ class CreateOrderView(APIView):
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
+
+class DeliveryListView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @swagger_auto_schema(
+        operation_id='get_delivery_status',
+        manual_parameters=[
+            openapi.Parameter(
+                name='order_id',
+                in_=openapi.IN_PATH,
+                type=openapi.TYPE_INTEGER,
+                description='Order ID'
+            )
+        ],
+        responses={200: openapi.Response(
+            description='Order delivery status',
+            schema=openapi.Schema(
+                type='object',
+                properties={'status': openapi.Schema(type='string')}
+            )
+        )}
+    )
+    def get(self, request, order_id):
+        """
+        Get the delivery status of an order.
+        """
+        try:
+            order = Order.objects.get(pk=order_id)
+            status = order.status
+            return Response({'status': status})
+        except Order.DoesNotExist:
+            return Response({'error': 'Order not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    @swagger_auto_schema(
+        operation_id='update_delivery_status',
+        manual_parameters=[
+            openapi.Parameter(
+                name='order_id',
+                in_=openapi.IN_PATH,
+                type=openapi.TYPE_INTEGER,
+                description='Order ID'
+            )
+        ],
+        request_body=openapi.Schema(
+            type='object',
+            properties={'delivered': openapi.Schema(type='boolean', description='Mark delivery as completed')}
+        ),
+        responses={
+            200: openapi.Response(description='Order status updated successfully'),
+            400: openapi.Response(description='Delivery confirmation not provided or Delivery not found')
+        }
+    )
+    def patch(self, request, order_id):
+        """
+        Update the delivery status of an order to "delivered" if the request data confirms delivery.
+        """
+        try:
+            delivery = Delivery.objects.get(pk=order_id)
+            order = delivery.order
+
+            if request.data.get('delivered', False):
+                order.status = 'delivered'
+                order.save()
+                return Response({'message': 'Order status updated to delivered'})
+            else:
+                return Response({'error': 'Delivery confirmation not provided'}, status=status.HTTP_400_BAD_REQUEST)
+
+        except Delivery.DoesNotExist:
+            return Response({'error': 'Delivery not found'}, status=status.HTTP_404_NOT_FOUND)
