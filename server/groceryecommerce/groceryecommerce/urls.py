@@ -3,7 +3,7 @@ from django.urls import path
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
-from grocery.views import ProductListView, CreateOrderView, OrderListView, OrderDetailView, UserRegisterView, UserProfileView, PaymentView, home, DeliveryListView
+from grocery.views import ProductListView, CreateOrderView, OrderListView, OrderDetailView, UserRegisterView, UserProfileView, PaymentView, home, DeliveryListView, DeliveryDetailView
 from django.contrib.auth.views import LoginView
 
 schema_view = get_schema_view(
@@ -32,4 +32,5 @@ urlpatterns = [
     path('profile/', UserProfileView.as_view(), name='user_profile'),
     path('payment/', PaymentView.as_view(), name='payment'),
     path('deliveries/<int:order_id>/', DeliveryListView.as_view(), name='delivery_list'),
+    path('deliveries/<int:delivery_id>/', DeliveryDetailView.as_view(), name='delivery_detail'),
 ]
