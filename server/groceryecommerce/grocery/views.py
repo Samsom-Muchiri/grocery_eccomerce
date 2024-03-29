@@ -16,7 +16,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes
 from django.contrib.auth.forms import UserCreationForm
 from django.utils.decorators import method_decorator
-
+from .serializers import DeliverySerializer
 
 
 def home(request):
@@ -193,3 +193,31 @@ class DeliveryListView(APIView):
 
         except Delivery.DoesNotExist:
             return Response({'error': 'Delivery not found'}, status=status.HTTP_404_NOT_FOUND)
+
+class DeliveryDetailView(APIView):
+    @swagger_auto_schema(
+        operation_id='get_delivery_details',
+        manual_parameters=[
+            openapi.Parameter(
+                name='delivery_id',
+                in_=openapi.IN_PATH,
+                type=openapi.TYPE_INTEGER,
+                description='Delivery ID'
+            )
+        ],
+        responses={
+            200: openapi.Response(description='Delivery details', schema=DeliverySerializer()),
+            404: openapi.Response(description='Delivery not found')
+        }
+    )
+    def get(self, request, delivery_id):
+        """
+        Get details of a specific delivery.
+        """
+        try:
+            delivery = Delivery.objects.get(pk=delivery_id)
+            serializer = DeliverySerializer(delivery)
+            return Response(serializer.data)
+        except Delivery.DoesNotExist:
+            return Response({'error': 'Delivery not found'}, status=status.HTTP_404_NOT_FOUND)
+        
