@@ -203,4 +203,7 @@ input:focus ~ .bar:after {
   .checkout-info {
     padding: 0 0.7rem;
   }
+  .c-cart-info {
+    width: 90%;
+  }
 }
