@@ -124,11 +124,21 @@ function CheckoutPage() {
           </ul>
           <div className="custom-tip">
             <span>Ksh</span>
-            <input type="number" placeholder="Place you fair price" />
+            <input
+              type="number"
+              placeholder="Place you fair price"
+              value={tip.type === "custom" ? tip.value : ""}
+              onClick={() => setTip({ type: "custom", value: 0 })}
+              onInput={(e) =>
+                setTip({ type: "custom", value: Math.max(e.target.value, 0) })
+              }
+            />
           </div>
           <small>Thank you, we appriciate.</small>
         </div>
-        <button className="pay-now">Pay now</button>
+        <button className="pay-now pbtn2" id="pay-now">
+          Pay now
+        </button>
       </form>
       <div className="c-cart-info">
         <h2>Order summery</h2>
@@ -218,6 +228,9 @@ function CheckoutPage() {
             <span>{vl.formatCurrencyKE(tip.value + vl.cartTotal)}</span>
           </li>
         </ul>
+        <label htmlFor="pay-now">
+          <button className="pay-now pbtn1">Pay now</button>
+        </label>
       </div>
     </div>
   );

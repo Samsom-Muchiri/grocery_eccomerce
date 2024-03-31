@@ -10,9 +10,9 @@
 .chakout-cnt {
   border-top: solid 1px black;
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-around;
   align-items: flex-start;
-  gap: 1rem;
   padding-bottom: 3rem;
 }
 .chakout-cnt h2 {
@@ -185,4 +185,19 @@ input:focus ~ .bar:after {
   display: flex;
   justify-content: space-between;
   font-weight: 500;
+}
+.pbtn1 {
+  display: none;
+}
+@media (max-width: 910px) {
+  .chakout-cnt {
+    flex-direction: column;
+    align-items: center;
+  }
+  .pbtn1 {
+    display: block;
+  }
+  .pbtn2 {
+    display: none;
+  }
 }
