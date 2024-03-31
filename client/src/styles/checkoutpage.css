@@ -200,4 +200,7 @@ input:focus ~ .bar:after {
   .pbtn2 {
     display: none;
   }
+  .checkout-info {
+    padding: 0 0.7rem;
+  }
 }
