@@ -1,9 +1,11 @@
 import React, { useContext } from "react";
 import "../../styles/cart.css";
 import { CONT } from "../../AppContext/context";
+import { useNavigate } from "react-router";
 
 function Cart() {
   const vl = useContext(CONT);
+  const navTo = useNavigate(null);
   const cartItems = Array(7).fill({
     id: "9",
     name: "Galic",
@@ -111,7 +113,13 @@ function Cart() {
               </div>
               <div>{vl.formatCurrencyKE(vl.cartTotal)}</div>
             </div>
-            <button className="checkout-btn">
+            <button
+              className="checkout-btn"
+              onClick={() => {
+                vl.setCartOpen(false);
+                navTo("chekout");
+              }}
+            >
               <span className="cb-txt">Checkout Now </span>{" "}
               <span className="material-symbols-outlined">trending_flat</span>
             </button>
