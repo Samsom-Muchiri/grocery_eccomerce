@@ -169,6 +169,8 @@ input:focus ~ .bar:after {
 }
 .c-cart-info {
   position: sticky;
+  min-width: 300px;
+  width: 30%;
   top: 3.8rem;
 }
 .ci-cart-item {

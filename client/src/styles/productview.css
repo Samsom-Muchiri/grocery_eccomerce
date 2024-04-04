@@ -1,0 +1,59 @@
+:root {
+  --color1: #f8f8f8;
+  --color2: #baf8ba;
+  --color3: #7cf87c;
+  --color4: #3ef83e;
+  --color5: #00f800;
+  --lightFont: #333333;
+  --overlay: rgba(0, 0, 0, 0.184);
+}
+.p-v-detail {
+  display: flex;
+  padding: 0.5rem;
+  gap: 1rem;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+.pv-image {
+  width: 90vw;
+  max-width: 500px;
+  max-height: 60vh;
+}
+.pv-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.pv-name {
+  color: var(--lightFont);
+  font-size: 1.5rem;
+}
+.pv-info {
+  padding-top: 2rem;
+  line-height: 2rem;
+  width: 100%;
+  max-width: 500px;
+}
+.pv-price span {
+  font-weight: 500;
+}
+.pv-addtocart {
+  background-color: var(--color5);
+  border: none;
+  outline: none;
+  padding: 0.5rem;
+  font-weight: 600;
+  color: var(--lightFont);
+  width: 90%;
+  margin: 1rem auto;
+  border-radius: 0.3rem;
+  cursor: pointer;
+}
+.pv-addtocart:hover {
+  background-color: var(--color3);
+}
+.pv-description {
+  color: var(--lightFont);
+  font-size: 0.9rem;
+  margin-top: 0;
+}
