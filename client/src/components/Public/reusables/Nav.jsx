@@ -3,10 +3,12 @@ import "../../../styles/nav.css";
 import { Outlet } from "react-router";
 import Cart from "../Cart";
 import { CONT } from "../../../AppContext/context";
+import Search from "../Search";
 
 function Nav() {
   const vl = useContext(CONT);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   useEffect(() => {
     function handleClick(e) {
       if (e.target.closest(".nav-links-cnt")) {
@@ -66,7 +68,7 @@ function Nav() {
           </ul>
         </div>
         <ul className="nav-actions">
-          <li>
+          <li onClick={() => setSearchOpen(true)}>
             <span className="material-symbols-outlined">search</span>
           </li>
           <li
@@ -80,6 +82,7 @@ function Nav() {
             <span className="material-symbols-outlined">account_circle</span>
           </li>
         </ul>
+        {searchOpen && <Search closeSearch={setSearchOpen} />}
       </nav>
       <Outlet />
       <Cart />
