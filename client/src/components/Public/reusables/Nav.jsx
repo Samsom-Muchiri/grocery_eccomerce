@@ -4,6 +4,7 @@ import { Outlet } from "react-router";
 import Cart from "../Cart";
 import { CONT } from "../../../AppContext/context";
 import Search from "../Search";
+import { Link } from "react-router-dom";
 
 function Nav() {
   const vl = useContext(CONT);
@@ -29,7 +30,9 @@ function Nav() {
           <div className="mobile-menu" onClick={() => setMenuOpen(true)}>
             <span className="material-symbols-outlined">menu</span>
           </div>
-          <h1>Logo</h1>
+          <h1>
+            <Link to="/">Logo</Link>{" "}
+          </h1>
         </div>
         <div
           className="nav-links-cnt"

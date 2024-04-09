@@ -5,6 +5,7 @@ function Context({ children }) {
   const [cartOpen, setCartOpen] = useState(false);
   const [cartData, setCartData] = useState([]);
   const [cartTotal, setCartTotal] = useState(0);
+  const [menuOpen, setMenuOpen] = useState(false);
   const functions = {
     formatCurrencyKE,
     cartOpen,
@@ -12,6 +13,8 @@ function Context({ children }) {
     cartData,
     setCartData,
     cartTotal,
+    menuOpen,
+    setMenuOpen,
   };
 
   function formatCurrencyKE(number) {

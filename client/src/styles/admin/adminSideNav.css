@@ -1,0 +1,61 @@
+:root {
+  --color1: #f8f8f8;
+  --color2: #baf8ba;
+  --color3: #7cf87c;
+  --color4: #3ef83e;
+  --color5: #00f800;
+  --lightFont: #333333;
+  --overlay: #0000002f;
+}
+.admin-sidenav {
+  width: 250px;
+  height: 100vh;
+  padding: 0.5rem;
+}
+.admin-logo {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0.5rem 0;
+}
+.admin-sidenav ul {
+  margin: 0%;
+  padding: 0%;
+  list-style: none;
+}
+.active li {
+  background-color: var(--color2);
+}
+.admin-sidenav ul li {
+  padding: 0.5rem;
+  width: 95%;
+  margin: 0.5rem auto;
+  border-radius: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+@media (max-width: 800px) {
+  .admin-sidenav-cnt {
+    position: fixed;
+    top: 0%;
+    left: 0%;
+    width: 100vw;
+    height: 100vh;
+    background-color: var(--overlay);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 100;
+  }
+  .admin-sidenav {
+    background-color: white;
+    transform: translateX(-100%);
+    transition: 0.3s ease-in;
+  }
+  .menu-open {
+    opacity: 1;
+    pointer-events: all;
+  }
+  .menu-open .admin-sidenav {
+    transform: translateX(0%);
+  }
+}
