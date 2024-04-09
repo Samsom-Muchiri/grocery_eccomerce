@@ -49,7 +49,7 @@
   .admin-sidenav {
     background-color: white;
     transform: translateX(-100%);
-    transition: 0.3s ease-in;
+    transition: 0.1s ease-in;
   }
   .menu-open {
     opacity: 1;

@@ -8,6 +8,8 @@ import CheckoutPage from "./Public/CheckoutPage";
 import ProductView from "./Public/ProductView";
 import AdminBody from "./Admin/AdminBody";
 import Overview from "./Admin/Overview";
+import Listing from "./Admin/Listing";
+import AddListing from "./Admin/AddListing";
 
 function Main() {
   const routes = createBrowserRouter(
@@ -15,6 +17,8 @@ function Main() {
       <Route path="/" element={<StateChecker />}>
         <Route path="/admin" element={<AdminBody />}>
           <Route index element={<Overview />} />
+          <Route path="listing" element={<Listing />} />
+          <Route path="new-listing" element={<AddListing />} />
         </Route>
         <Route path="/" element={<Nav />}>
           <Route index element={<LandingPage />} />

@@ -3,10 +3,12 @@ import "../../styles/admin/overview.css";
 import LineGraph from "../Reusables/LineGraph";
 import { CONT } from "../../AppContext/context";
 import DoughnutChart from "../Reusables/DoughnutChart";
+import { useNavigate } from "react-router";
 
 function Overview() {
   const [orgValueHistory, setOrgValueHistory] = useState("month");
   const [view, setView] = useState("total_income"); // ['total_income', 'members', 'committiees', 'projects']
+  const navTo = useNavigate(null);
   const unitLabel = {
     total_income: "Total income",
     members: "Number of members",
@@ -19,21 +21,25 @@ function Overview() {
       title: "Listing",
       count: "300",
       icon: "list_alt",
+      link: "listing",
     },
     {
       title: "Orders",
       count: "30",
       icon: "orders",
+      link: "",
     },
     {
       title: "Closed orders",
       count: "30",
       icon: "handshake",
+      link: "",
     },
     {
       title: "Promotions",
       count: "10",
       icon: "trending_up",
+      link: "",
     },
   ];
   function generateDataObjects(numObjects = 30) {
@@ -65,7 +71,7 @@ function Overview() {
               <div className="obc-count">{card.count}</div>
               <span className="material-symbols-outlined">{card.icon}</span>
             </div>
-            <div className="obc-view">
+            <div className="obc-view" onClick={() => navTo(card.link)}>
               <span>View</span>
               <span className="material-symbols-outlined">arrow_forward</span>
             </div>
