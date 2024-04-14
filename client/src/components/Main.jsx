@@ -10,6 +10,7 @@ import AdminBody from "./Admin/AdminBody";
 import Overview from "./Admin/Overview";
 import Listing from "./Admin/Listing";
 import AddListing from "./Admin/AddListing";
+import ListingDetail from "./Admin/ListingDetail";
 
 function Main() {
   const routes = createBrowserRouter(
@@ -19,6 +20,7 @@ function Main() {
           <Route index element={<Overview />} />
           <Route path="listing" element={<Listing />} />
           <Route path="new-listing" element={<AddListing />} />
+          <Route path="listing/prod/:product" element={<ListingDetail />} />
         </Route>
         <Route path="/" element={<Nav />}>
           <Route index element={<LandingPage />} />

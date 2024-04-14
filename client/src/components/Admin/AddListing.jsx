@@ -1,125 +1,159 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useState } from "react";
+import { useNavigate } from "react-router";
 import "../../styles/admin/addlisting.css";
-import ListingForm from "./ListingForm";
-import Loader from "../Loader";
-import { CONT } from "../../AppContext/context";
+import TextEditor from "../Public/reusables/TextEditor";
 
 function AddListing() {
-  const [category, setCategory] = useState("default");
-  const [posting, setPosting] = useState(false);
-  const vl = useContext(CONT);
+  const navTo = useNavigate();
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [subCategories, setSubCategories] = useState([]);
 
-  function Default() {
-    return <h1>Choose category</h1>;
-  }
-
-  function PostComplete() {
-    return (
-      <div className="complete-message">
-        <span className="material-symbols-outlined">check_circle</span>
-        <br />
-        Item listed successfuly
-      </div>
-    );
-  }
-
-  const forms = {
-    clothing: { form: ListingForm, path: "/post_listing/1" },
-    default: { form: Default, path: "" },
-    postComplete: { form: PostComplete },
-    home_garden: { form: ListingForm, path: "/post_listing/1" },
-    electronics: { form: ListingForm, path: "/post_listing/1" },
-  };
-  const ChosenCategory = forms[category].form;
-
-  function postListing(data) {
-    setPosting(true);
-    fetch(vl.baseUrl + forms[category].path, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ ...data.formValues, model: category }),
-    })
-      .then((res) => res.json())
-
-      .then((resdata) => {
-        if (resdata.hasOwnProperty("success")) {
-          uploadImages(data.images);
-        }
-        console.log(resdata);
-      })
-      .cath((error) => console.log(error));
-  }
-
-  const uploadImages = async (imageObject) => {
-    try {
-      const formData = new FormData();
-
-      // Append each file to the FormData object
-      for (const key in imageObject) {
-        if (imageObject[key] instanceof File) {
-          formData.append("file", imageObject[key]);
-        }
-      }
-
-      // Make a POST request to the API endpoint
-      const response = await fetch(vl.baseUrl + "/add_product_image", {
-        method: "POST",
-        body: formData,
-      });
-
-      // Handle the response
-      if (response.ok) {
-        const result = await response.json();
-        if (result.hasOwnProperty("file_paths")) {
-          setPosting(false);
-          setCategory("postComplete");
-        }
-      } else {
-        console.error("Upload failed:", response.statusText);
-      }
-    } catch (error) {
-      console.error("Error uploading images:", error);
+  const handleImageChange = (e) => {
+    const selectedFile = e.target.files[0];
+    if (selectedFile) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        setSelectedImage(reader.result);
+      };
+      reader.readAsDataURL(selectedFile);
     }
   };
 
-  return (
-    <>
-      {" "}
-      {!posting ? (
-        <>
-          <section>
-            <div className="listing-title">
-              <h1>New listing</h1>
-            </div>
+  const uploadImage = () => {
+    if (selectedImage) {
+      console.log("Image uploaded:", selectedImage);
+    } else {
+      console.log("No image selected.");
+    }
+  };
 
-            <div className="item-category-select">
-              <br />
-              <label htmlFor="categories">
-                <big>Chose item category</big>
-                <br />
-              </label>
-              <select
-                id="categories"
-                onChange={(e) => setCategory(e.target.value)}
-              >
-                <option value="default">Select a category</option>
-                <option value="clothing">Clothing</option>
-                <option value="clothing">Electronics</option>
-                <option value="clothing">Home and Garden</option>
-              </select>
-            </div>
-          </section>
-          <ChosenCategory /* postFunction={postListing} */ />
-        </>
-      ) : (
-        <center>
-          <h1>Uploading..</h1>
-          <Loader />
-        </center>
-      )}
-    </>
+  const categories = {
+    vegetables: {
+      name: "Vegetables",
+      sub_category: [
+        "Root Vegetables",
+        "Leafy Greens",
+        "Cruciferous Vegetables",
+        "Podded Vegetables",
+        "Bulb and Stem Vegetables",
+      ],
+    },
+    meat: {
+      name: "Meat",
+      sub_category: ["Beef", "Pork", "Chicken", "Lamb", "Turkey"],
+    },
+    fruits: {
+      name: "Fruits",
+      sub_category: [
+        "Citrus Fruits",
+        "Berry Fruits",
+        "Stone Fruits",
+        "Tropical Fruits",
+        "Melons",
+      ],
+    },
+    fish: {
+      name: "Fish",
+      sub_category: ["Whitefish", "Salmon", "Tuna", "Trout", "Sardines"],
+    },
+    drinks: {
+      name: "Drinks",
+      sub_category: [
+        "Soft Drinks",
+        "Juices",
+        "Tea",
+        "Coffee",
+        "Alcoholic Beverages",
+      ],
+    },
+    snacks: {
+      name: "Snacks",
+      sub_category: ["Chips", "Cookies", "Nuts", "Candy", "Popcorn"],
+    },
+  };
+
+  return (
+    <div>
+      <section>
+        <div className="section-head" onClick={() => navTo("/admin/listing")}>
+          <span className="material-symbols-outlined">arrow_back</span>{" "}
+          <h1>New Listing</h1>
+        </div>
+      </section>
+      <section className="a-prod-imagecnt">
+        <div className="a-prod-image">
+          <label htmlFor="prod-image" className="a-add-photo">
+            <span className="material-symbols-outlined">photo_camera</span>
+            <input
+              type="file"
+              accept="image/*"
+              id="prod-image"
+              onChange={handleImageChange}
+            />
+          </label>
+          {/* Display the selected image */}
+          {selectedImage && <img src={selectedImage} alt="Selected" />}
+        </div>
+      </section>
+      <section className="a-product-details">
+        <div>
+          <div className="a-category-select">
+            <label htmlFor="category">Category</label>
+            <select
+              name="category"
+              onChange={(e) => {
+                setSubCategories(categories[e.target.value].sub_category);
+              }}
+            >
+              {Object.keys(categories).map((category) => {
+                return (
+                  <option value={category}>{categories[category].name}</option>
+                );
+              })}
+            </select>
+          </div>
+          <br />
+          <div className="a-category-select">
+            <label htmlFor="category">Sub category</label>
+            <select name="sub_category" onChang e={(e) => {}}>
+              {subCategories.map((category) => {
+                return <option value={category}>{category}</option>;
+              })}
+            </select>
+          </div>
+        </div>
+        <div className="a-prd-price">
+          <div className="p-input">
+            <label>Item name</label>
+            <input type="text" placeholder="name" />
+          </div>
+          <div className="p-input">
+            <label htmlFor="price">Item price</label>
+            <input name="price" type="number" placeholder="name" />
+          </div>
+          <div className="p-input">
+            <label>
+              Discount{" "}
+              <small style={{ fontSize: "0.8rem", color: "gary" }}>
+                <i>Optional</i>
+              </small>
+            </label>
+            <input name="discount" type="text" placeholder="name" />
+          </div>
+          <div className="p-input">
+            <label htmlFor="name">Quantity</label>
+            <input name="quantity" type="text" placeholder="Quantity" />
+          </div>
+        </div>
+      </section>
+      <section className="a-prd-description">
+        <label htmlFor="">Description</label>
+        <TextEditor />
+      </section>
+      <section>
+        <button className="a-submit-btn">Submit</button>
+      </section>
+    </div>
   );
 }
 

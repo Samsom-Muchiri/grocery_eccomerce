@@ -36,9 +36,7 @@ function Listing() {
               })}
               checker={true}
               checkerState={setCheckedData}
-              doubleClick={(orgName) =>
-                navTo(`/ensmn/dash/products/${orgName}`)
-              }
+              doubleClick={(name) => navTo(`/admin/listing/prod/${name}`)}
               doubleClickData="name"
             />
           </div>
