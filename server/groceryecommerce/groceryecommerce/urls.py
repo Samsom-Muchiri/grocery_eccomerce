@@ -34,3 +34,4 @@ urlpatterns = [
     path('deliveries/<int:order_id>/', DeliveryListView.as_view(), name='delivery_list'),
     path('deliveries/<int:delivery_id>/', DeliveryDetailView.as_view(), name='delivery_detail'),
 ]
+
