@@ -11,5 +11,5 @@ psycopg2
 pytz==2024.1
 PyYAML==6.0.1
 sqlparse
-typing_extensions==4.10.0
-uritemplate==4.1.1
+typing_extensions
+uritemplate
