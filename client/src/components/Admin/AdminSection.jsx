@@ -18,13 +18,27 @@ function AdminSection({ Pages = () => {} }) {
       window.removeEventListener("click", menuToggole);
     };
   }, []);
-  console.log(vl.menuOpen);
   return (
     <div className="admin-section">
-      <div className="admin-section-nav">
+      {/* <div className="admin-section-nav">
         <div className="menu-btn" onClick={() => vl.setMenuOpen(true)}>
           <span className="material-symbols-outlined">menu</span>
           <h1>logo</h1>
+        </div>
+      </div> */}
+      <div className="admin-body-nav">
+        <div className="amn-sec">
+          <span
+            className="material-symbols-outlined adm-nav-menu-btn menu-btn"
+            onClick={() => vl.setMenuOpen(true)}
+          >
+            menu
+          </span>
+          <span className="material-symbols-outlined">home</span>/ Dashboard
+        </div>
+        <div className="amn-sec">
+          Welcome
+          <span className="material-symbols-outlined">account_circle</span>
         </div>
       </div>
       <Pages />

@@ -1,164 +1,124 @@
 import React, { useContext, useState } from "react";
 import "../../styles/admin/overview.css";
-import LineGraph from "../Reusables/LineGraph";
-import { CONT } from "../../AppContext/context";
-import DoughnutChart from "../Reusables/DoughnutChart";
-import { useNavigate } from "react-router";
-
+import SimpleLineChart from "../Reusables/LineGraph";
+import SimpleBChart from "../Reusables/BarChart";
 function Overview() {
-  const [orgValueHistory, setOrgValueHistory] = useState("month");
-  const [view, setView] = useState("total_income"); // ['total_income', 'members', 'committiees', 'projects']
-  const navTo = useNavigate(null);
-  const unitLabel = {
-    total_income: "Total income",
-    members: "Number of members",
-    committiees: "Number of committees",
-    projects: "Number of projects",
-  };
-  const vl = useContext(CONT);
-  const dataCards = [
+  const topSectionCards = [
     {
-      title: "Listing",
-      count: "300",
-      icon: "list_alt",
-      link: "listing",
+      icon: "person",
+      title: "Signed users",
+      count: 500,
     },
     {
-      title: "Orders",
-      count: "30",
-      icon: "orders",
-      link: "",
+      icon: "groups",
+      title: "Todays users",
+      count: 100,
     },
     {
-      title: "Closed orders",
-      count: "30",
-      icon: "handshake",
-      link: "",
+      icon: "post",
+      title: "Posts",
+      count: 173,
     },
     {
-      title: "Promotions",
-      count: "10",
-      icon: "trending_up",
-      link: "",
+      icon: "assignment_ind",
+      title: "Authors",
+      count: 15,
     },
   ];
-  function generateDataObjects(numObjects = 30) {
-    const startDate = new Date(); // Start from today's date
-    const dataObjects = [];
-    const amount = Math.floor(Math.random() * 1000) + 1;
-    for (let i = 0; i < numObjects; i++) {
-      const date = new Date(startDate.getTime() + i * 24 * 60 * 60 * 1000); // Advance date by 1 day for each object
-      dataObjects.push({
-        date: date.toUTCString(), // Format as UTC string
-        unit: amount,
-      });
-    }
 
-    return dataObjects;
-  }
+  const uData = [4000, 3000, 2000, 2780, 1890, 2390, 3490];
+  const pData = [2400, 1398, 9800, 3908, 4800, 3800, 4300];
+  const trafficChartLabels = [
+    "Jan",
+    "Feb",
+    "Mat",
+    "Apri",
+    "May",
+    "June",
+    "July",
+    "Aug",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+
+  const trafficChartData = [
+    { data: pData, label: "Signed" },
+    { data: uData, label: "Not signed" },
+  ];
+
+  const salesData = [{ data: pData, label: "Revenue", id: "pvId" }];
+
   return (
     <div>
-      <section className="overview-head">
-        <h1>Overview</h1>
-      </section>
-      <section className="top-data">
-        {dataCards.map((card) => (
-          <div className="o-data-c">
-            <div className="obc-head">
-              <h2>{card.title}</h2>
+      <section className="dash-top-sections">
+        {topSectionCards.map((card) => (
+          <div className="sts-card">
+            <div>
+              <div className="dst-title">{card.title}</div>
+              <div className="dst-count">{card.count}</div>
             </div>
-            <div className="obc-body">
-              <div className="obc-count">{card.count}</div>
+            <div className="dst-icon">
               <span className="material-symbols-outlined">{card.icon}</span>
-            </div>
-            <div className="obc-view" onClick={() => navTo(card.link)}>
-              <span>View</span>
-              <span className="material-symbols-outlined">arrow_forward</span>
             </div>
           </div>
         ))}
       </section>
-      <section className="ov-inventory">
-        <div className="sale-activity-summery">
-          <div className="sas-head">
-            <h2>Sale activity summery</h2>
-          </div>
-          <div className="sas-activity">
-            <ul className="sas-left">
-              <li>To be picked: 20</li>
-              <li>To be deliverd: 50</li>
-              <li>To be shipped: 30</li>
-            </ul>
-            <div className="sas-chart">
-              <DoughnutChart values={[20, 50, 30]} />
+      <section className="c-trends">
+        <div className="traffic">
+          <div className="traffic-head">
+            <div className="select-card">
+              <h1>Traffic history</h1>
+              <select>
+                <option value="2021">2021</option>
+                <option value="2022">2022</option>
+                <option value="2023">2023</option>
+                <option value="2024">2024</option>
+              </select>
             </div>
+            <h2>
+              Active now <strong>56</strong>
+            </h2>
           </div>
-        </div>
-        <div className="inventory-summery">
-          <div className="iv-head">
-            <h2>Inventory summery</h2>
-          </div>
-          <div className="iv-summery">
-            <span>Items in hand</span> 270
-          </div>
-          <div className="iv-summery">
-            <span>
-              {" "}
-              Out of stock{" "}
-              <div className="view-stock-out">
-                view{" "}
-                <span className="material-symbols-outlined">arrow_forward</span>
-              </div>
-            </span>{" "}
-            270
-          </div>
-        </div>
-      </section>
-      <section className="ens-org-trands">
-        <div className="ens-trand-graph-cnt">
-          <div className="ens-trand-graph-cnt-head">
-            <h2>Sales summery</h2>
-            <div className="ens-d-tgd-cnt">
-              <div className="ens-d-tgd">
-                Time
-                <select
-                  value={orgValueHistory}
-                  onChange={(e) => setOrgValueHistory(e.target.value)}
-                >
-                  <option value="month">Months</option>
-                  <option value="day">Days</option>
-                  <option value="week">Weeks</option>
-                  <option value="year">Years</option>
-                </select>
-              </div>
-              <div className="ens-d-tgd">
-                <span>Category</span>
-                <select value={view} onChange={(e) => setView(e.target.value)}>
-                  <option value="total_income">Total income</option>
-                  <option value="members">Members</option>
-                </select>
-              </div>
-            </div>
-          </div>
-          <div className="ens-trand-graph">
-            <LineGraph
-              period={orgValueHistory}
-              data={generateDataObjects(100)}
-              units={unitLabel[view]}
+          <div className="traffic-chart-cnt">
+            <SimpleLineChart
+              data={trafficChartData}
+              labels={trafficChartLabels}
             />
           </div>
         </div>
-        <div className="top-products">
-          <h2>Top products</h2>
-          <ul>
-            <li>
-              <span>KAWEBO</span>{" "}
-              <div className="eto-revenue">
-                <span className="material-symbols-outlined">payments</span>
-                {vl.formatCurrencyKE(75000)}
-              </div>
-            </li>
-          </ul>
+        <div className="ads-overview">
+          <div className="ads-head">
+            <h1>AD's activity</h1>
+          </div>
+          <div className="ads-overview-cnt">
+            <ul className="ads-trakings">
+              <li>
+                <div className="adt-title">
+                  <span className="material-symbols-outlined">ad</span> Total
+                  Ad's
+                </div>
+                <div className="adt-count">37</div>
+              </li>
+              <li>
+                <div className="adt-title">
+                  <span className="material-symbols-outlined">ads_click</span>{" "}
+                  Total Clicks
+                </div>
+                <div className="adt-count">37,000</div>
+              </li>
+              <li>
+                <div className="adt-title">
+                  <span className="material-symbols-outlined">payments</span>{" "}
+                  Total Revenue
+                </div>
+                <div className="adt-count">37</div>
+              </li>
+            </ul>
+            <div style={{ height: "300px", width: "100%" }}>
+              <SimpleBChart data={salesData} labels={trafficChartLabels} />
+            </div>
+          </div>
         </div>
       </section>
     </div>
