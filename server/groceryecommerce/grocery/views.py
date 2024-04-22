@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
 from .models import Product, Order, User, Payment, CreditCardPayment, MobileMoneyPayment, Delivery
 import json
@@ -57,16 +57,24 @@ class UserRegisterView(CreateView):
 
 class UserProfileView(APIView):
     @method_decorator(login_required)
+    @swagger_auto_schema(
+        operation_id='user_profile',
+        responses={200: openapi.Response(description="User profile details"),
+                   401: openapi.Response(description="Unauthorized")}
+    )
     def get(self, request):
         form = UserProfileForm(instance=request.user)
         return render(request, 'profile.html', {'form': form})
 
     def post(self, request):
-        form = UserProfileForm(request.POST, instance=request.user)
+        user_instance = get_object_or_404(User, pk=request.user.pk)
+        form = UserProfileForm(request.POST, instance=user_instance)
         if form.is_valid():
             form.save()
             return JsonResponse({'message': 'Profile updated successfully'})
         else:
+            errors = form.errors.as_json()
+            print(errors)  
             return JsonResponse({'error': 'Invalid data'}, status=400)
 
 class PaymentView(APIView):
