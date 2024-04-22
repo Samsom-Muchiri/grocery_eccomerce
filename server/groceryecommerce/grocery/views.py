@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
 from .models import Product, Order, User, Payment, CreditCardPayment, MobileMoneyPayment, Delivery
 import json
@@ -17,6 +17,8 @@ from rest_framework.decorators import api_view, permission_classes
 from django.contrib.auth.forms import UserCreationForm
 from django.utils.decorators import method_decorator
 from .serializers import DeliverySerializer
+from django.contrib.sessions.models import Session
+from rest_framework import generics
 
 
 def home(request):
@@ -42,18 +44,37 @@ class UserRegisterView(CreateView):
     template_name = 'registration/register.html'
     success_url = '/login/'
 
+    @swagger_auto_schema(
+        operation_id='user_register',
+        responses={200: openapi.Response(description="User registered successfully")}
+    )
+    def post(self, request, *args, **kwargs):
+        """
+        Register a new user.
+        """
+        return super().post(request, *args, **kwargs)
+    
+
 class UserProfileView(APIView):
     @method_decorator(login_required)
+    @swagger_auto_schema(
+        operation_id='user_profile',
+        responses={200: openapi.Response(description="User profile details"),
+                   401: openapi.Response(description="Unauthorized")}
+    )
     def get(self, request):
         form = UserProfileForm(instance=request.user)
         return render(request, 'profile.html', {'form': form})
 
     def post(self, request):
-        form = UserProfileForm(request.POST, instance=request.user)
+        user_instance = get_object_or_404(User, pk=request.user.pk)
+        form = UserProfileForm(request.POST, instance=user_instance)
         if form.is_valid():
             form.save()
             return JsonResponse({'message': 'Profile updated successfully'})
         else:
+            errors = form.errors.as_json()
+            print(errors)  
             return JsonResponse({'error': 'Invalid data'}, status=400)
 
 class PaymentView(APIView):
@@ -68,6 +89,9 @@ class PaymentView(APIView):
 class ProductListView(APIView):
     @swagger_auto_schema(operation_id='list_products', responses={200: openapi.Response(description="List of products", schema=ProductSerializer(many=True))})
     def get(self, request):
+        """
+        Get a list of products.
+        """
         products = Product.objects.all()
         serializer = ProductSerializer(products, many=True)
         return Response(serializer.data)
@@ -77,6 +101,9 @@ class OrderListView(APIView):
 
     @swagger_auto_schema(operation_id='list_orders', responses={200: openapi.Response(description="List of orders", schema=OrderSerializer(many=True))})
     def get(self, request):
+        """
+        Get a list of orders for authenticated user.
+        """
         orders = Order.objects.filter(user=request.user)
         serializer = OrderSerializer(orders, many=True)
         return Response(serializer.data)
@@ -89,6 +116,9 @@ class OrderDetailView(APIView):
                    404: openapi.Response(description="Order not found")}
     )
     def get(self, request, order_id):
+        """
+        Get details of a specific order.
+        """
         try:
             order = Order.objects.get(id=order_id)
             serializer = OrderSerializer(order)
@@ -110,6 +140,9 @@ class CreateOrderView(APIView):
         }
     )), 400: openapi.Response(description="Bad request")})
     def post(self, request):
+        """
+        Create a new order.
+        """
         try:
             order_data = json.loads(request.body.decode('utf-8'))
             products = order_data.get('products', [])
@@ -220,4 +253,55 @@ class DeliveryDetailView(APIView):
             return Response(serializer.data)
         except Delivery.DoesNotExist:
             return Response({'error': 'Delivery not found'}, status=status.HTTP_404_NOT_FOUND)
-        
+
+class ProductListByCategory(generics.ListAPIView):
+    serializer_class = ProductSerializer
+
+    @swagger_auto_schema(
+        operation_id='list_products_by_category',
+        responses={200: openapi.Response(description="List of products by category", schema=ProductSerializer(many=True))}
+    )
+    def get_queryset(self):
+        """
+        Get a list of products by category.
+        """
+        category = self.kwargs['category']
+        return Product.objects.filter(category=category)
+
+
+class AddToCart(generics.CreateAPIView):
+    serializer_class = OrderSerializer
+
+
+class UpdateCart(generics.UpdateAPIView):
+    queryset = Order.objects.all()
+    serializer_class = OrderSerializer
+
+    @swagger_auto_schema(
+        operation_id='update_cart',
+        responses={200: openapi.Response(description="Cart updated successfully"),
+                   400: openapi.Response(description="Bad request")}
+    )
+    def update(self, request, *args, **kwargs):
+        """
+        Update the cart.
+        """
+        instance = self.get_object()
+        data = request.data
+
+        # Check if 'products' key is present in the request data
+        if 'products' in data:
+            # If the 'products' key is present and the value is an empty list,
+            if data['products'] == []:
+                instance.products.clear()
+                return Response({'detail': 'Cart cleared successfully'}, status=status.HTTP_200_OK)
+
+            # If 'products' key is present and is not empty,
+            # update the products in the order
+            else:
+                product_ids = [product['id'] for product in data['products']]
+                instance.products.exclude(id__in=product_ids).clear()
+                return super().update(request, *args, **kwargs)
+
+        return super().update(request, *args, **kwargs)
+    

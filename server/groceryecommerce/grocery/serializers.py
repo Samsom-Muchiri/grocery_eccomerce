@@ -4,12 +4,12 @@ from .models import Product, Order, Delivery
 class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
-        fields = ['id', 'name', 'description', 'picture', 'price', 'category', 'quantity', 'availability']
-
+        fields = '__all__'
+        
 class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
-        fields = ['id', 'user', 'total_price', 'status', 'created_at', 'products']
+        fields = '__all__'
 
 
 class DeliverySerializer(serializers.ModelSerializer):
