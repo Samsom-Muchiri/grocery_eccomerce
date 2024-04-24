@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
-from .models import Product, Order, User, Payment, CreditCardPayment, MobileMoneyPayment, Delivery
+from .models import Product, Order, User, Payment, CreditCardPayment, MobileMoneyPayment, Delivery, Cart
 import json
 from django import forms
 from django.contrib.auth.decorators import login_required
@@ -16,7 +16,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes
 from django.contrib.auth.forms import UserCreationForm
 from django.utils.decorators import method_decorator
-from .serializers import DeliverySerializer
+from .serializers import DeliverySerializer, CartSerializer
 from django.contrib.sessions.models import Session
 from rest_framework import generics
 
@@ -269,13 +269,30 @@ class ProductListByCategory(generics.ListAPIView):
         return Product.objects.filter(category=category)
 
 
-class AddToCart(generics.CreateAPIView):
-    serializer_class = OrderSerializer
+class AddToCart(APIView):
+    permission_classes = [IsAuthenticated]
 
+    @swagger_auto_schema(
+        operation_id='add_to_cart',
+        responses={200: openapi.Response(description="Item added to cart successfully")},
+    )
+    def post(self, request):
+        try:
+            data = json.loads(request.body)
+            product_ids = data.get('product_ids', [])
+
+            cart, created = Cart.objects.get_or_create(user=request.user)
+            products = Product.objects.filter(id__in=product_ids)
+
+            cart.products.add(*products)
+
+            return Response({'success': True, 'message': 'Item(s) added to cart successfully'})
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 class UpdateCart(generics.UpdateAPIView):
-    queryset = Order.objects.all()
-    serializer_class = OrderSerializer
+    queryset = Cart.objects.all()
+    serializer_class = CartSerializer
 
     @swagger_auto_schema(
         operation_id='update_cart',
@@ -289,7 +306,6 @@ class UpdateCart(generics.UpdateAPIView):
         instance = self.get_object()
         data = request.data
 
-        # Check if 'products' key is present in the request data
         if 'products' in data:
             # If the 'products' key is present and the value is an empty list,
             if data['products'] == []:
@@ -297,11 +313,13 @@ class UpdateCart(generics.UpdateAPIView):
                 return Response({'detail': 'Cart cleared successfully'}, status=status.HTTP_200_OK)
 
             # If 'products' key is present and is not empty,
-            # update the products in the order
+            # update the products in the cart
             else:
-                product_ids = [product['id'] for product in data['products']]
-                instance.products.exclude(id__in=product_ids).clear()
-                return super().update(request, *args, **kwargs)
+                product_ids = data['products']
+                products = Product.objects.filter(id__in=product_ids)
+                instance.products.set(products)
 
-        return super().update(request, *args, **kwargs)
+                return Response({'detail': 'Cart updated successfully'}, status=status.HTTP_200_OK)
+
+        return Response({'detail': 'No products provided for update'}, status=status.HTTP_400_BAD_REQUEST)
     
