@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
-from .models import Product, Order, User, Payment, CreditCardPayment, MobileMoneyPayment, Delivery, Cart
+from .models import Product, Order, User, Payment, CreditCardPayment, MobileMoneyPayment, Delivery, Cart, CartItem
 import json
 from django import forms
 from django.contrib.auth.decorators import login_required
@@ -9,7 +9,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from .forms import UserProfileForm, PaymentForm
-from .serializers import ProductSerializer, OrderSerializer
+from .serializers import ProductSerializer, OrderSerializer, CartItemSerializer, CartSerializer
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from rest_framework.permissions import IsAuthenticated
@@ -284,6 +284,14 @@ class AddToCart(APIView):
                 'quantity': openapi.Schema(
                     type=openapi.TYPE_INTEGER,
                     description="Quantity of the product to add to the cart"
+                ),
+                'price': openapi.Schema(
+                    type=openapi.TYPE_NUMBER,
+                    description="Price of the product"
+                ),
+                'offer': openapi.Schema(
+                    type=openapi.TYPE_NUMBER,
+                    description="Offer on the product"
                 )
             }
         ),
@@ -292,14 +300,21 @@ class AddToCart(APIView):
     def post(self, request):
         try:
             product_id = request.data.get('product_id')
-            quantity = request.data.get('quantity', 1)  # Default to 1 if quantity is not provided
+            quantity = request.data.get('quantity', 1)
+            price = request.data.get('price')
+            offer = request.data.get('offer')
 
             cart, created = Cart.objects.get_or_create(user=request.user)
             product = Product.objects.get(id=product_id)
 
             # Add the product to the cart multiple times based on the quantity
             for _ in range(quantity):
-                cart.products.add(product)
+                cart_item, _ = CartItem.objects.get_or_create(cart=cart, product=product)
+
+                cart_item.quantity += 1
+                cart_item.price = price
+                cart_item.offer = offer
+                cart_item.save()
 
             return Response({'success': True, 'message': f'{quantity} item(s) added to cart successfully'})
         except Exception as e:
@@ -325,6 +340,14 @@ class UpdateCart(APIView):
                             'quantity': openapi.Schema(
                                 type=openapi.TYPE_INTEGER,
                                 description="Quantity of the product in the cart"
+                            ),
+                            'price': openapi.Schema(
+                                type=openapi.TYPE_NUMBER,
+                                description="Price of the product"
+                            ),
+                            'offer': openapi.Schema(
+                                type=openapi.TYPE_NUMBER,
+                                description="Offer on the product"
                             )
                         }
                     ),
@@ -340,26 +363,23 @@ class UpdateCart(APIView):
             data = request.data.get('items', [])
             cart, created = Cart.objects.get_or_create(user=request.user)
 
-            existing_products = cart.products.all()
-
-            existing_product_map = {product.id: product for product in existing_products}
-
             for item_data in data:
                 product_id = item_data.get('product_id')
-                quantity = item_data.get('quantity', 1)  # Default quantity to 1 if not provided
+                quantity = item_data.get('quantity', 1)
+                price = item_data.get('price')
+                offer = item_data.get('offer')
 
-                product = existing_product_map.get(product_id)
-
-                if product:
-                    if quantity > 0:
-                        cart.products.add(product)
-                    else:
-                        cart.products.remove(product)
+                product = Product.objects.get(id=product_id)
+                cart_item, _ = CartItem.objects.get_or_create(cart=cart, product=product)
+                cart_item.quantity = quantity
+                cart_item.price = price
+                cart_item.offer = offer
+                cart_item.save()
 
             return Response({'success': True, 'message': 'Cart updated successfully'})
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
-
+        
 class CreateProductView(APIView):
     @swagger_auto_schema(
         operation_id='create_product',
