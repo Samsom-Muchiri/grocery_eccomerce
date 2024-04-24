@@ -301,21 +301,25 @@ class AddToCart(APIView):
         try:
             product_id = request.data.get('product_id')
             quantity = request.data.get('quantity', 1)
-            price = request.data.get('price')
             offer = request.data.get('offer')
 
-            cart, created = Cart.objects.get_or_create(user=request.user)
             product = Product.objects.get(id=product_id)
-
-            if offer is not None:
-                price -= offer
+            
+            cart, created = Cart.objects.get_or_create(user=request.user)
+            price = request.data.get('price', product.price)
 
             # Add the product to the cart multiple times based on the quantity
             for _ in range(quantity):
                 cart_item, _ = CartItem.objects.get_or_create(cart=cart, product=product)
 
                 cart_item.quantity += 1
-                cart_item.price = price
+                
+                # Calculate the price after applying the offer, if available
+                item_price = price if price is not None else product.price
+                if offer is not None:
+                    item_price -= offer
+
+                cart_item.price = item_price
                 cart_item.offer = offer
                 cart_item.save()
 
