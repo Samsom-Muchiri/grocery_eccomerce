@@ -274,12 +274,21 @@ class AddToCart(APIView):
 
     @swagger_auto_schema(
         operation_id='add_to_cart',
-        responses={200: openapi.Response(description="Item added to cart successfully")},
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'product_ids': openapi.Schema(
+                    type=openapi.TYPE_ARRAY,
+                    items=openapi.Schema(type=openapi.TYPE_INTEGER),
+                    description="List of product IDs to add to the cart"
+                )
+            }
+        ),
+        responses={200: openapi.Response(description="Item added to cart successfully")}
     )
     def post(self, request):
         try:
-            data = json.loads(request.body)
-            product_ids = data.get('product_ids', [])
+            product_ids = request.data.get('product_ids', [])
 
             cart, created = Cart.objects.get_or_create(user=request.user)
             products = Product.objects.filter(id__in=product_ids)
@@ -296,6 +305,16 @@ class UpdateCart(generics.UpdateAPIView):
 
     @swagger_auto_schema(
         operation_id='update_cart',
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'products': openapi.Schema(
+                    type=openapi.TYPE_ARRAY,
+                    items=openapi.Schema(type=openapi.TYPE_INTEGER),
+                    description="List of updated product IDs in the cart"
+                )
+            }
+        ),
         responses={200: openapi.Response(description="Cart updated successfully"),
                    400: openapi.Response(description="Bad request")}
     )
