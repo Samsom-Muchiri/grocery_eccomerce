@@ -335,7 +335,7 @@ class UpdateCart(APIView):
         responses={200: openapi.Response(description="Cart updated successfully"),
                    400: openapi.Response(description="Bad request")}
     )
-    def put(self, request):
+    def put(self, request, *args, **kwargs):
         try:
             data = request.data.get('items', [])
             cart, created = Cart.objects.get_or_create(user=request.user)
