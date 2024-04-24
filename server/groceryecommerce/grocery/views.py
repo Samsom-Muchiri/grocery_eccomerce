@@ -359,3 +359,25 @@ class UpdateCart(APIView):
             return Response({'success': True, 'message': 'Cart updated successfully'})
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+class CreateProductView(APIView):
+    @swagger_auto_schema(
+        operation_id='create_product',
+        request_body=ProductSerializer,
+        responses={201: openapi.Response(description="Product created successfully", schema=ProductSerializer)},
+        tags=['products']
+    )
+    def post(self, request):
+        """
+        Create a new product.
+        """
+        try:
+            serializer = ProductSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        

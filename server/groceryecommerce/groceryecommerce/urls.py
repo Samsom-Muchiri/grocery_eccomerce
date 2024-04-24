@@ -3,7 +3,7 @@ from django.urls import path
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
-from grocery.views import ProductListView, CreateOrderView, OrderListView, OrderDetailView, UserRegisterView, UserProfileView, PaymentView, home, DeliveryListView, DeliveryDetailView, ProductListByCategory, AddToCart, UpdateCart
+from grocery.views import ProductListView, CreateOrderView, OrderListView, OrderDetailView, UserRegisterView, UserProfileView, PaymentView, home, DeliveryListView, DeliveryDetailView, ProductListByCategory, AddToCart, UpdateCart, CreateProductView
 from django.contrib.auth.views import LoginView
 
 schema_view = get_schema_view(
@@ -36,5 +36,6 @@ urlpatterns = [
     path('products/<str:category>/', ProductListByCategory.as_view(), name='product-list-by-category'),
     path('add-to-cart/', AddToCart.as_view(), name='add-to-cart'),
     path('update-cart/<int:pk>/', UpdateCart.as_view(), name='update-cart'),
+    path('create-product/', CreateProductView.as_view(), name='create_product'),
 ]
 
