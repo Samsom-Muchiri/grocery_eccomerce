@@ -51,6 +51,8 @@ class Product(models.Model):
     category = models.CharField(max_length=20, choices=CATEGORY_CHOICES)
     quantity = models.PositiveIntegerField(default=0)
     availability = models.BooleanField(default=True)
+    offer = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, help_text="Offer or discount on the product")
+    
 
     def __str__(self):
         return self.name

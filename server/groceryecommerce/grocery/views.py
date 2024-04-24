@@ -307,6 +307,9 @@ class AddToCart(APIView):
             cart, created = Cart.objects.get_or_create(user=request.user)
             product = Product.objects.get(id=product_id)
 
+            if offer is not None:
+                price -= offer
+
             # Add the product to the cart multiple times based on the quantity
             for _ in range(quantity):
                 cart_item, _ = CartItem.objects.get_or_create(cart=cart, product=product)
@@ -372,7 +375,11 @@ class UpdateCart(APIView):
                 product = Product.objects.get(id=product_id)
                 cart_item, _ = CartItem.objects.get_or_create(cart=cart, product=product)
                 cart_item.quantity = quantity
-                cart_item.price = price
+                if offer is not None:
+                    cart_item.price = price - offer
+                else:
+                    cart_item.price = price
+
                 cart_item.offer = offer
                 cart_item.save()
 
