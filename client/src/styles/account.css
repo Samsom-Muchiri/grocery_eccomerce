@@ -1,0 +1,70 @@
+:root {
+  --color1: #f8f8f8;
+  --color2: #baf8ba;
+  --color3: #7cf87c;
+  --color4: #3ef83e;
+  --color5: #00f800;
+  --lightFont: #333333;
+  --overlay: #0000002f;
+}
+.account-cnt {
+  display: flex;
+  gap: 1rem;
+  width: 100vw;
+  max-width: 1200px;
+  margin: 0 auto;
+  height: 80vh;
+  margin-top: 1rem;
+}
+.account-side-nav {
+  margin: 0%;
+  padding: 0%;
+  list-style: none;
+  width: 300px;
+  box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+  border-radius: 0.3rem;
+  overflow: hidden;
+}
+.account-side-nav li {
+  padding: 1rem;
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+.account-side-nav li:hover {
+  background-color: var(--color1);
+}
+.account-cnt .active li {
+  background-color: var(--color2);
+}
+.account-sec-cnt {
+  width: 100%;
+  box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+  border-radius: 0.3rem;
+}
+.ac-sec-head {
+  padding: 0.5rem;
+  border-bottom: solid 1px var(--overlay);
+}
+.ac-sec-head h1 {
+  margin: 0%;
+}
+.ac-sec {
+  padding: 0.5rem 1rem;
+}
+.ac-detail-cards {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+.ac-detail-card p {
+  padding: 0 0.5rem;
+}
+.ac-detail-card {
+  border: solid 1px #bebdbd;
+  border-radius: 0.3rem;
+}
+.acd-head {
+  padding: 0.5rem;
+  border-bottom: solid 1px #bebdbd;
+}

@@ -11,6 +11,12 @@ import Overview from "./Admin/Overview";
 import Listing from "./Admin/Listing";
 import AddListing from "./Admin/AddListing";
 import ListingDetail from "./Admin/ListingDetail";
+import Account from "./Public/Account";
+import Myaccount from "./Public/Account components/Myaccount";
+import TimaTable from "./Public/Account components/TimaTable";
+import Orders from "./Public/Account components/Orders";
+import SavedItems from "./Public/Account components/SavedItems";
+import Vouchers from "./Public/Account components/Vouchers";
 
 function Main() {
   const routes = createBrowserRouter(
@@ -24,6 +30,13 @@ function Main() {
         </Route>
         <Route path="/" element={<Nav />}>
           <Route index element={<LandingPage />} />
+          <Route path="account" element={<Account />}>
+            <Route path="my_account" element={<Myaccount />} />
+            <Route path="time_table" element={<TimaTable />} />
+            <Route path="orders" element={<Orders />} />
+            <Route path="vouchers" element={<Vouchers />} />
+            <Route path="saved_items" element={<SavedItems />} />
+          </Route>
           <Route path="/product/:view" element={<ProductView />} />
           <Route path="chekout" element={<CheckoutPage />} />
         </Route>

@@ -45,7 +45,10 @@ function Nav() {
               <h1>Logo</h1>
             </li>
             <li>
-              <span>Home</span>
+              <Link to="/">
+                {" "}
+                <span>Home</span>
+              </Link>
             </li>
             <li>
               <span>Shop</span>
@@ -81,9 +84,11 @@ function Nav() {
           >
             <span className="material-symbols-outlined">shopping_cart</span>
           </li>
-          <li>
-            <span className="material-symbols-outlined">account_circle</span>
-          </li>
+          <Link to="/account/my_account">
+            <li>
+              <span className="material-symbols-outlined">account_circle</span>
+            </li>
+          </Link>
         </ul>
         {searchOpen && <Search closeSearch={setSearchOpen} />}
       </nav>
