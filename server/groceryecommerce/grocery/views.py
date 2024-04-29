@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
-from .models import Product, Order, User, Payment, CreditCardPayment, MobileMoneyPayment, Delivery
+from .models import Product, Order, User, Payment, CreditCardPayment, MobileMoneyPayment, Delivery, Cart, CartItem
 import json
 from django import forms
 from django.contrib.auth.decorators import login_required
@@ -9,14 +9,14 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from .forms import UserProfileForm, PaymentForm
-from .serializers import ProductSerializer, OrderSerializer
+from .serializers import ProductSerializer, OrderSerializer, CartItemSerializer, CartSerializer
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes
 from django.contrib.auth.forms import UserCreationForm
 from django.utils.decorators import method_decorator
-from .serializers import DeliverySerializer
+from .serializers import DeliverySerializer, CartSerializer
 from django.contrib.sessions.models import Session
 from rest_framework import generics
 
@@ -269,39 +269,146 @@ class ProductListByCategory(generics.ListAPIView):
         return Product.objects.filter(category=category)
 
 
-class AddToCart(generics.CreateAPIView):
-    serializer_class = OrderSerializer
+class AddToCart(APIView):
+    permission_classes = [IsAuthenticated]
 
+    @swagger_auto_schema(
+        operation_id='add_to_cart',
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'product_id': openapi.Schema(
+                    type=openapi.TYPE_INTEGER,
+                    description="ID of the product to add to the cart"
+                ),
+                'quantity': openapi.Schema(
+                    type=openapi.TYPE_INTEGER,
+                    description="Quantity of the product to add to the cart"
+                ),
+                'price': openapi.Schema(
+                    type=openapi.TYPE_NUMBER,
+                    description="Price of the product"
+                ),
+                'offer': openapi.Schema(
+                    type=openapi.TYPE_NUMBER,
+                    description="Offer on the product"
+                )
+            }
+        ),
+        responses={200: openapi.Response(description="Item(s) added to cart successfully")}
+    )
+    def post(self, request):
+        try:
+            product_id = request.data.get('product_id')
+            quantity = request.data.get('quantity', 1)
+            offer = request.data.get('offer')
 
-class UpdateCart(generics.UpdateAPIView):
-    queryset = Order.objects.all()
-    serializer_class = OrderSerializer
+            product = Product.objects.get(id=product_id)
+            
+            cart, created = Cart.objects.get_or_create(user=request.user)
+            price = request.data.get('price', product.price)
+
+            # Add the product to the cart multiple times based on the quantity
+            for _ in range(quantity):
+                cart_item, _ = CartItem.objects.get_or_create(cart=cart, product=product)
+
+                cart_item.quantity += 1
+                
+                # Calculate the price after applying the offer, if available
+                item_price = price if price is not None else product.price
+                if offer is not None:
+                    item_price -= offer
+
+                cart_item.price = item_price
+                cart_item.offer = offer
+                cart_item.save()
+
+            return Response({'success': True, 'message': f'{quantity} item(s) added to cart successfully'})
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+class UpdateCart(APIView):
+    permission_classes = [IsAuthenticated]
 
     @swagger_auto_schema(
         operation_id='update_cart',
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'items': openapi.Schema(
+                    type=openapi.TYPE_ARRAY,
+                    items=openapi.Schema(
+                        type=openapi.TYPE_OBJECT,
+                        properties={
+                            'product_id': openapi.Schema(
+                                type=openapi.TYPE_INTEGER,
+                                description="ID of the product to update in the cart"
+                            ),
+                            'quantity': openapi.Schema(
+                                type=openapi.TYPE_INTEGER,
+                                description="Quantity of the product in the cart"
+                            ),
+                            'price': openapi.Schema(
+                                type=openapi.TYPE_NUMBER,
+                                description="Price of the product"
+                            ),
+                            'offer': openapi.Schema(
+                                type=openapi.TYPE_NUMBER,
+                                description="Offer on the product"
+                            )
+                        }
+                    ),
+                    description="List of items to update in the cart"
+                )
+            }
+        ),
         responses={200: openapi.Response(description="Cart updated successfully"),
                    400: openapi.Response(description="Bad request")}
     )
-    def update(self, request, *args, **kwargs):
-        """
-        Update the cart.
-        """
-        instance = self.get_object()
-        data = request.data
+    def put(self, request, *args, **kwargs):
+        try:
+            data = request.data.get('items', [])
+            cart, created = Cart.objects.get_or_create(user=request.user)
 
-        # Check if 'products' key is present in the request data
-        if 'products' in data:
-            # If the 'products' key is present and the value is an empty list,
-            if data['products'] == []:
-                instance.products.clear()
-                return Response({'detail': 'Cart cleared successfully'}, status=status.HTTP_200_OK)
+            for item_data in data:
+                product_id = item_data.get('product_id')
+                quantity = item_data.get('quantity', 1)
+                price = item_data.get('price')
+                offer = item_data.get('offer')
 
-            # If 'products' key is present and is not empty,
-            # update the products in the order
+                product = Product.objects.get(id=product_id)
+                cart_item, _ = CartItem.objects.get_or_create(cart=cart, product=product)
+                cart_item.quantity = quantity
+                if offer is not None:
+                    cart_item.price = price - offer
+                else:
+                    cart_item.price = price
+
+                cart_item.offer = offer
+                cart_item.save()
+
+            return Response({'success': True, 'message': 'Cart updated successfully'})
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        
+class CreateProductView(APIView):
+    @swagger_auto_schema(
+        operation_id='create_product',
+        request_body=ProductSerializer,
+        responses={201: openapi.Response(description="Product created successfully", schema=ProductSerializer)},
+        tags=['products']
+    )
+    def post(self, request):
+        """
+        Create a new product.
+        """
+        try:
+            serializer = ProductSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
             else:
-                product_ids = [product['id'] for product in data['products']]
-                instance.products.exclude(id__in=product_ids).clear()
-                return super().update(request, *args, **kwargs)
-
-        return super().update(request, *args, **kwargs)
-    
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        

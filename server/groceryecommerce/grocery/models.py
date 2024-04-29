@@ -51,6 +51,8 @@ class Product(models.Model):
     category = models.CharField(max_length=20, choices=CATEGORY_CHOICES)
     quantity = models.PositiveIntegerField(default=0)
     availability = models.BooleanField(default=True)
+    offer = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, help_text="Offer or discount on the product")
+    
 
     def __str__(self):
         return self.name
@@ -71,3 +73,20 @@ class Delivery(models.Model):
     delivery_fee = models.DecimalField(max_digits=10, decimal_places=2)
     status = models.CharField(max_length=20, choices=[('pending', 'Pending'), ('shipped', 'Shipped'), ('delivered', 'Delivered')])
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
+
+
+class Cart(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='cart')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Cart for {self.user.username}"
+
+class CartItem(models.Model):
+    cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='items')
+    product = models.ForeignKey('Product', on_delete=models.CASCADE)
+    price = models.FloatField(null=True)
+    offer = models.FloatField(null=True)
+    quantity = models.IntegerField(null=False, default=1)
+    
