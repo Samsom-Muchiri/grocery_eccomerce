@@ -14,10 +14,26 @@ function AdminSideNav() {
       <aside className="admin-sidenav">
         <div className="admin-logo">Logo</div>
         <ul>
-          <NavLink to="/admin">
+          <NavLink
+            to="/admin/overview"
+            onClick={() =>
+              vl.setPath([{ title: "Overview", path: "/admin/overview" }])
+            }
+          >
             <li>
               <span className="material-symbols-outlined">dashboard</span>{" "}
               Overview
+            </li>
+          </NavLink>
+          <NavLink
+            to="/admin/listing"
+            onClick={() =>
+              vl.setPath([{ title: "Products", path: "/admin/listing" }])
+            }
+          >
+            <li>
+              <span className="material-symbols-outlined">inventory_2</span>{" "}
+              Products
             </li>
           </NavLink>
           <li>

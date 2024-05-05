@@ -23,9 +23,9 @@ function Main() {
     createRoutesFromElements(
       <Route path="/" element={<StateChecker />}>
         <Route path="/admin" element={<AdminBody />}>
-          <Route index element={<Overview />} />
+          <Route path="overview" element={<Overview />} />
           <Route path="listing" element={<Listing />} />
-          <Route path="new-listing" element={<AddListing />} />
+          <Route path="listing/new-listing" element={<AddListing />} />
           <Route path="listing/prod/:product" element={<ListingDetail />} />
         </Route>
         <Route path="/" element={<Nav />}>

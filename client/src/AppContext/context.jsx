@@ -6,7 +6,13 @@ function Context({ children }) {
   const [cartData, setCartData] = useState([]);
   const [cartTotal, setCartTotal] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [userIsLoged, setUserIsLoged] = useState(false);
+  const [path, setPath] = useState([
+    { title: "Dashboard", path: "/admin/dashboard" },
+  ]);
   const functions = {
+    path,
+    setPath,
     formatCurrencyKE,
     cartOpen,
     setCartOpen,
@@ -15,6 +21,8 @@ function Context({ children }) {
     cartTotal,
     menuOpen,
     setMenuOpen,
+    userIsLoged,
+    setUserIsLoged,
   };
 
   function formatCurrencyKE(number) {

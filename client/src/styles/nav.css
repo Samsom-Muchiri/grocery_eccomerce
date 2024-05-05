@@ -68,6 +68,83 @@ nav ul {
 .nl-logo {
   display: none;
 }
+.log-nav-li {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-end;
+}
+.log-nav-li h3 {
+  margin: 0%;
+  font-size: 1rem;
+}
+.log-nav-li .material-symbols-outlined {
+  font-size: 2rem;
+}
+.log-actions span {
+  cursor: pointer;
+}
+.log-actions span:hover {
+  text-decoration: underline;
+}
+
+.log-form-cnt {
+  top: 0%;
+  left: 0%;
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  background-color: var(--overlay);
+  z-index: 110;
+  display: flex;
+  justify-content: center;
+}
+.log-form-cnt form {
+  position: relative;
+  margin-top: 10vh;
+  background-color: white;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  height: fit-content;
+  width: 90vw;
+  max-width: 400px;
+  border: solid 1px var(--color2);
+}
+.close-log-form {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  cursor: pointer;
+}
+.log-form-head {
+  font-size: 1.4rem;
+  font-weight: 500;
+  margin-bottom: 0.3rem;
+}
+.log-form-imp input {
+  display: block;
+  margin: 0.5rem 0;
+  width: 100%;
+  font-size: 1.1rem;
+  border-radius: 5px;
+  border: solid 1px black;
+  padding: 5px;
+}
+.log-submit-btn {
+  display: block;
+  width: 100%;
+  padding: 0.5rem;
+  background-color: black;
+  border: none;
+  border-radius: 0.3rem;
+  color: white;
+  font-weight: 400;
+  font-size: 1.1rem;
+  margin-top: 0.5rem;
+  position: relative;
+  min-height: 2rem;
+  cursor: pointer;
+}
+
 @media (max-width: 800px) {
   .mobile-menu {
     display: block;

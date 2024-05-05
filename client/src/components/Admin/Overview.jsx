@@ -2,7 +2,9 @@ import React, { useContext, useState } from "react";
 import "../../styles/admin/overview.css";
 import SimpleLineChart from "../Reusables/LineGraph";
 import SimpleBChart from "../Reusables/BarChart";
+import { CONT } from "../../AppContext/context";
 function Overview() {
+  const vl = useContext(CONT);
   const topSectionCards = [
     {
       icon: "person",
@@ -15,14 +17,14 @@ function Overview() {
       count: 100,
     },
     {
-      icon: "post",
-      title: "Posts",
+      icon: "inventory_2",
+      title: "Products",
       count: 173,
     },
     {
       icon: "assignment_ind",
-      title: "Authors",
-      count: 15,
+      title: "Sales",
+      count: vl.formatCurrencyKE(280949),
     },
   ];
 
