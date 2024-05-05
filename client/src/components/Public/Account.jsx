@@ -1,9 +1,12 @@
-import React from "react";
+import React, { useEffect } from "react";
 import "../../styles/account.css";
-import { Outlet } from "react-router";
-import { NavLink } from "react-router-dom";
+import { Outlet, useOutletContext } from "react-router";
+import { NavLink, useLocation } from "react-router-dom";
 
 function Account() {
+  const outletContext = useOutletContext(Outlet);
+  const location = useLocation();
+
   return (
     <div className="account-cnt">
       <ul className="account-side-nav">
@@ -37,7 +40,13 @@ function Account() {
           </li>
         </NavLink>
       </ul>
-      <div className="account-sec-cnt">
+      <div
+        className={
+          window.location.pathname !== "/account"
+            ? "account-sec-cnt"
+            : "account-sec-cnt no-ac-sec"
+        }
+      >
         <Outlet />
       </div>
     </div>

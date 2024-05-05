@@ -1,10 +1,16 @@
 import React from "react";
+import { useNavigate } from "react-router";
 
 function Myaccount() {
+  const navTo = useNavigate(null);
   return (
     <div>
       <section className="ac-sec-head">
-        <h1>My account</h1>
+        <div className="ac-sec-back" onClick={() => navTo("/account")}>
+          <span className="material-symbols-outlined">keyboard_backspace</span>
+          <h1>My account</h1>
+        </div>
+        <h1 className="ac-sec-title">My account</h1>
       </section>
       <section className="ac-sec ac-detail-cards">
         <div className="ac-detail-card">
@@ -12,6 +18,7 @@ function Myaccount() {
           <ul>
             <li>User name: Username</li>
             <li>Email: useremail@gmail.com</li>
+            <li>Password</li>
           </ul>
         </div>
         <div className="ac-detail-card">
