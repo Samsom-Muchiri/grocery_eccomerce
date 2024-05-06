@@ -12,12 +12,6 @@ function Listing() {
   const vl = useContext(CONT);
   return (
     <div>
-      <section>
-        <div className="section-head" onClick={() => navTo("/admin")}>
-          <span className="material-symbols-outlined">arrow_back</span>{" "}
-          <h1>Listing</h1>
-        </div>
-      </section>
       <section className="prd-data">
         <div className="data-table-cnt acc-crd">
           <div className="data-table-head">

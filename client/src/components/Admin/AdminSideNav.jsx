@@ -36,6 +36,17 @@ function AdminSideNav() {
               Products
             </li>
           </NavLink>
+          <NavLink
+            to="/admin/timetable"
+            onClick={() =>
+              vl.setPath([{ title: "Timetable", path: "/admin/timetable" }])
+            }
+          >
+            <li>
+              <span className="material-symbols-outlined">event_note</span>{" "}
+              Timetable
+            </li>
+          </NavLink>
           <li>
             <span className="material-symbols-outlined">person</span> Profile
           </li>

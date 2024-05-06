@@ -17,6 +17,7 @@ import TimaTable from "./Public/Account components/TimaTable";
 import Orders from "./Public/Account components/Orders";
 import SavedItems from "./Public/Account components/SavedItems";
 import Vouchers from "./Public/Account components/Vouchers";
+import Timetable from "./Admin/Timetable";
 
 function Main() {
   const routes = createBrowserRouter(
@@ -26,6 +27,7 @@ function Main() {
           <Route path="overview" element={<Overview />} />
           <Route path="listing" element={<Listing />} />
           <Route path="listing/new-listing" element={<AddListing />} />
+          <Route path="timetable" element={<Timetable />} />
           <Route path="listing/prod/:product" element={<ListingDetail />} />
         </Route>
         <Route path="/" element={<Nav />}>

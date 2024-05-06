@@ -87,3 +87,25 @@
   border: none;
   margin: 2rem;
 }
+.key-words {
+  width: 250px;
+  min-height: 150px;
+  border: solid 1px black;
+  display: inline-block;
+  padding: 0.3rem;
+}
+.key-words button {
+  font-size: 1rem;
+  cursor: pointer;
+}
+.key-words input {
+  font-size: 1rem;
+  width: 80%;
+}
+/* .key-word-head {
+  padding: 0.3rem;
+} */
+.key-word-head h1 {
+  margin: 0%;
+  font-size: 1rem;
+}

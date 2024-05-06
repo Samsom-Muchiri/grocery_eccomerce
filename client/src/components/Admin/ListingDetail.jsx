@@ -611,10 +611,10 @@ function ListingDetail() {
           </div>
         </div>
         <div className="line-graph-cnt">
-          <LineGraph
+          {/* <LineGraph
             period={saleHistoryPeriod}
             data={productData?.product_track}
-          />
+          /> */}
         </div>
       </div>
     </>

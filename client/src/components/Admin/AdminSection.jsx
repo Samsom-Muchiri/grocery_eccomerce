@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import "../../styles/admin/adminsection.css";
 import { CONT } from "../../AppContext/context";
+import { Link } from "react-router-dom";
 
 function AdminSection({ Pages = () => {} }) {
   const vl = useContext(CONT);
@@ -34,7 +35,15 @@ function AdminSection({ Pages = () => {} }) {
           >
             menu
           </span>
-          <span className="material-symbols-outlined">home</span>/ Dashboard
+          <span className="material-symbols-outlined">home</span>{" "}
+          {vl.path.map((path, i) => (
+            <Link
+              to={path.path}
+              onClick={() => vl.setPath(vl.path.slice(0, i + 1))}
+            >
+              / {path.title}
+            </Link>
+          ))}
         </div>
         <div className="amn-sec">
           Welcome

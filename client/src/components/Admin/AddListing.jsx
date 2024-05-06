@@ -72,14 +72,36 @@ function AddListing() {
     },
   };
 
+  const KeyWords = () => {
+    const [keys, setKeys] = useState([]);
+    return (
+      <div className="key-words">
+        <div className="key-word-head">
+          <h1>Key words</h1>
+        </div>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            setKeys((prev) => [...prev, formData.get("key")]);
+          }}
+          className="key-word-input"
+        >
+          <input type="text" name="key" /> <button>Add</button>
+        </form>
+        <ul>
+          {keys.length > 1 ? (
+            keys.map((key) => <li>{key}</li>)
+          ) : (
+            <center style={{ color: "gray" }}>No key words</center>
+          )}
+        </ul>
+      </div>
+    );
+  };
+
   return (
     <div>
-      <section>
-        <div className="section-head" onClick={() => navTo("/admin/listing")}>
-          <span className="material-symbols-outlined">arrow_back</span>{" "}
-          <h1>New Listing</h1>
-        </div>
-      </section>
       <section className="a-prod-imagecnt">
         <div className="a-prod-image">
           <label htmlFor="prod-image" className="a-add-photo">
@@ -145,6 +167,7 @@ function AddListing() {
             <input name="quantity" type="text" placeholder="Quantity" />
           </div>
         </div>
+        <KeyWords />
       </section>
       <section className="a-prd-description">
         <label htmlFor="">Description</label>
