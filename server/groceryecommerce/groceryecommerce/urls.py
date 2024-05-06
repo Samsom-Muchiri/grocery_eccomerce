@@ -5,6 +5,8 @@ from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from grocery.views import ProductListView, CreateOrderView, OrderListView, OrderDetailView, UserRegisterView, UserProfileView, PaymentView, home, DeliveryListView, DeliveryDetailView, ProductListByCategory, AddToCart, UpdateCart, CreateProductView
 from django.contrib.auth.views import LoginView
+from MpesaViews.mpesaCtoB import mpesa_callback
+
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -37,5 +39,7 @@ urlpatterns = [
     path('add-to-cart/', AddToCart.as_view(), name='add-to-cart'),
     path('update-cart/<int:pk>/', UpdateCart.as_view(), name='update-cart'),
     path('create-product/', CreateProductView.as_view(), name='create_product'),
+    path("mpesa/callback/", mpesa_callback, name="mpesa_callback"),
+
 ]
 

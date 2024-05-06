@@ -13,6 +13,9 @@ class Payment(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=20, choices=[('pending', 'Pending'), ('successful', 'Successful'), ('failed', 'Failed')])
 
+    class Meta:
+        abstract = True
+
 class Order(models.Model):
     STATUS_CHOICES = [
         ('pending', 'Pending'),
@@ -66,6 +69,8 @@ class CreditCardPayment(Payment):
 class MobileMoneyPayment(Payment):
     phone_payment_number = models.CharField(max_length=20)
     provider = models.CharField(max_length=30)
+    mpesa_transaction_id = models.CharField(max_length=100, blank=True, null=True)
+    
 
 
 class Delivery(models.Model):
