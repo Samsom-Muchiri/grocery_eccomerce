@@ -16,7 +16,7 @@ def checkout_order(request, order_id):
     # Use Lipa na Mpesa Online (STK Push)
     STKPush = mpesa_api.lipa_na_mpesa_online(
         ShortCode="PAYBILL_SHORTCODE",
-        PartyA="YOUR_BUSINESS_SHORTCODE",  # Replace with your Lipa na Mpesa Till Number
+        PartyA="YOUR_BUSINESS_SHORTCODE",  # Replace with Lipa na Mpesa Till Number
         CallBackURL="YOUR_CALLBACK_URL",    # URL for receiving Mpesa confirmation
         PhoneNumber=request.user.phone_number,  # User's phone number
         Amount=total_amount,
