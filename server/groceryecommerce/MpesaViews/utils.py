@@ -2,14 +2,16 @@ import logging
 import time
 import base64
 import requests
+import os
 
 from datetime import datetime
 from requests.auth import HTTPBasicAuth
 from requests import Response
-
-from MpesaViews import env
 from MpesaViews.exeptions import *
+from dotenv import load_dotenv
 
+# Load environment variables from .env file
+load_dotenv()
 
 logging = logging.getLogger("default")
 now = datetime.now()
@@ -36,23 +38,13 @@ def mpesa_response(r):
 	return r
 
 class MpesaGateWay:
-    business_shortcode = None
-    consumer_key = None
-    consumer_secret = None
-    access_token_url = None
-    access_token = None
-    access_token_expiration = None
-    checkout_url = None
-    timestamp = None
-
-
     def __init__(self):
-        self.business_shortcode = env("BUSINESS_SHORTCODE")
-        self.consumer_key = env("CONSUMER_KEY")
-        self.consumer_secret = env("CONSUMER_SECRET")
-        self.access_token_url = env("ACCESS_TOKEN_URL")
+        self.business_shortcode =  os.environ.get("BUSINESS_SHORTCODE")
+        self.consumer_key =  os.environ.get("CONSUMER_KEY")
+        self.consumer_secret =  os.environ.get("CONSUMER_SECRET")
+        self.access_token_url =  os.environ.get("ACCESS_TOKEN_URL")
         self.password = self.generate_password()
-        self.checkout_url = env("CHECKOUT_URL")
+        self.checkout_url =  os.environ.get("CHECKOUT_URL")
 
         try:
             self.access_token = self.getAccessToken()
@@ -66,14 +58,12 @@ class MpesaGateWay:
     def getAccessToken(self):
         try:
             res = requests.get(self.access_token_url, auth=HTTPBasicAuth(self.consumer_key, self.consumer_secret))
-
-        except Exception as err:
-            logging.error("Error {}".format(err))
-
-        else:
             token = res.json()["access_token"]
             self.headers = {"Authorization": "Bearer %s" % token}
             return token
+        except Exception as err:
+            logging.error("Error {}".format(err))
+            return None
 
     class Decorators:
         @staticmethod
@@ -89,7 +79,7 @@ class MpesaGateWay:
 
     def generate_password(self):
         self.timestamp = now.strftime("%Y%m%d%H%M%S")
-        password_str = env("BUSINESS_SHORTCODE") + env("PASS_KEY") + self.timestamp
+        password_str = os.environ.get("BUSINESS_SHORTCODE") + os.environ.get("PASS_KEY") + self.timestamp
         password_bytes = password_str.encode("ascii")
         return base64.b64encode(password_bytes).decode("utf-8")
     

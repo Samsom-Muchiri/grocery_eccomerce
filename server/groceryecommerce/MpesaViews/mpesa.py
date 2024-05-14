@@ -28,15 +28,23 @@ class MpesaCallbackView(views.APIView):
             mpesa_body = mpesa.body
 
             if mpesa_body['stkCallback']['ResultCode'] == 0:
-                payment = MobileMoneyPayment.objects.create(
-                    amount=mpesa_body['Body']['stkCallback']['CallbackMetadata']['Item'][0]["Value"],
-                    mpesa_transaction_id=mpesa_body['Body']['stkCallback']['CallbackMetadata']['Item'][1]["Value"],
-                    phone_payment_number=mpesa_body['Body']['stkCallback']['CallbackMetadata']['Item'][-1]["Value"],
+                amount = mpesa_body['Body']['stkCallback']['CallbackMetadata']['Item'][0]["Value"]
+                mpesa_transaction_id = mpesa_body['Body']['stkCallback']['CallbackMetadata']['Item'][1]["Value"]
+                phone_payment_number = mpesa_body['Body']['stkCallback']['CallbackMetadata']['Item'][-1]["Value"]
+                order_id = mpesa_body['Body']['stkCallback']['CallbackMetadata']['Item'][2]["Value"]  # Assuming order ID is available in callback data
+
+                mpesapayment = MobileMoneyPayment.objects.create(
+                    amount=amount,
+                    mpesa_transaction_id=mpesa_transaction_id,
+                    phone_payment_number=phone_payment_number,
                 )
-                
-                order = Order.objects.get(id=mpesa_body['Body']['stkCallback']['CallbackMetadata']['Item'][1]["Value"])  # Assuming transaction ID is order ID
-                order.status = 'paid'
-                order.save()
+
+                try:
+                    order = Order.objects.get(id=order_id)
+                    order.status = 'paid'
+                    order.save()
+                except Order.DoesNotExist:
+                    return response.Response({"error": "Order not found"}, status=status.HTTP_404_NOT_FOUND)
 
             return response.Response({"message": "Callback received and processed successfully."})
         return response.Response({"failed": "No Callback Received"}, status=status.HTTP_400_BAD_REQUEST)
@@ -49,7 +57,7 @@ class MpesaCallbackView(views.APIView):
     
 class MobileMoneyPaymentView(views.APIView):
     def get(self, request):
-        payments = MobileMoneyPayment.objects.all()
-        serializer = MobileMoneyPaymentSerializer(payments, many=True)
+        mpesapayments = MobileMoneyPayment.objects.all()
+        serializer = MobileMoneyPaymentSerializer(mpesapayments, many=True)
 
-        return response.Response({"payments": serializer.data})
+        return response.Response({"mpesapayments": serializer.data})

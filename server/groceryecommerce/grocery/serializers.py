@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models import Product, Order, Delivery, Cart, MpesaResponseBody, Payment, MobileMoneyPayment
-from ..MpesaViews.utils import MpesaGateWay
+from MpesaViews.utils import MpesaGateWay
 
 pay = MpesaGateWay()
 
