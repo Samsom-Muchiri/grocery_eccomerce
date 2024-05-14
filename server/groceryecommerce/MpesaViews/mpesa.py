@@ -9,6 +9,9 @@ class SendSTKPushView(views.APIView):
     def post(self, request, format=None):
         serializer = SendSTKPushSerializer(data=request.data)
         if serializer.is_valid():
+            order_id = serializer.validated_data.get('order_id')
+            phone_payment_number = serializer.validated_data.get('phone_payment_number')
+
             res = serializer.save()
             return response.Response(res, status=status.HTTP_200_OK)
         return response.Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -30,6 +33,10 @@ class MpesaCallbackView(views.APIView):
                     mpesa_transaction_id=mpesa_body['Body']['stkCallback']['CallbackMetadata']['Item'][1]["Value"],
                     phone_payment_number=mpesa_body['Body']['stkCallback']['CallbackMetadata']['Item'][-1]["Value"],
                 )
+                
+                order = Order.objects.get(id=mpesa_body['Body']['stkCallback']['CallbackMetadata']['Item'][1]["Value"])  # Assuming transaction ID is order ID
+                order.status = 'paid'
+                order.save()
 
             return response.Response({"message": "Callback received and processed successfully."})
         return response.Response({"failed": "No Callback Received"}, status=status.HTTP_400_BAD_REQUEST)

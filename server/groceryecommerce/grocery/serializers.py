@@ -6,19 +6,26 @@ pay = MpesaGateWay()
 
 class SendSTKPushSerializer(serializers.Serializer):
     phone_payment_number = serializers.CharField()
-    amount = serializers.CharField()
+    order_id = serializers.IntegerField()
 
-    def validate_amount(self, attrs):
-        amount = int(attrs)
-
-        if amount <= 0:
-            raise serializers.ValidationError(detail="Amount must be greater than 0")
-        return amount
+    def validate_order_id(self, value):
+        try:
+            order = Order.objects.get(id=value)
+        except Order.DoesNotExist:
+            raise serializers.ValidationError("Order does not exist")
+        return value
 
 
     def create(self, validated_data):
         phone_payment_number = validated_data['phone_payment_number']
-        amount = validated_data['amount']
+        order_id = validated_data['order_id']
+
+        try:
+            order = Order.objects.get(id=order_id)
+        except Order.DoesNotExist:
+            raise serializers.ValidationError("Order does not exist")
+        
+        amount = order.total_price
 
         if str(phone_payment_number)[0] == "+":
             phone_payment_number = phone_payment_number[1:]
