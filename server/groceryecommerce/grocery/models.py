@@ -8,15 +8,35 @@ class User(AbstractUser):
     address = models.CharField(max_length=255, blank=True, null=True)
     phone_number = models.CharField(max_length=20, blank=True, null=True)
 
+
+class MpesaResponseBody(models.Model):
+    body = models.JSONField()
+
+    def __str__(self):
+        return f"Mpesa Response Body {self.id}"
+    
 class Payment(models.Model):
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     timestamp = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=20, choices=[('pending', 'Pending'), ('successful', 'Successful'), ('failed', 'Failed')])
 
+    mpesa_response = models.OneToOneField(MpesaResponseBody, on_delete=models.CASCADE, null=True, blank=True)
+
+class CreditCardPayment(Payment):
+    card_number = models.CharField(max_length=16)
+    expiration_date = models.DateField()
+    security_code = models.CharField(max_length=3)
+
+class MobileMoneyPayment(Payment):
+    phone_payment_number = models.CharField(max_length=20)
+    provider = models.CharField(max_length=30)
+    mpesa_transaction_id = models.CharField(max_length=200, blank=True, null=True)
+    
+
 class Order(models.Model):
     STATUS_CHOICES = [
         ('pending', 'Pending'),
-        ('processing', 'Processing'),
+        ('paid', 'Paid'),
         ('shipped', 'Shipped'),
         ('delivered', 'Delivered'),
         ('cancelled', 'Cancelled'),
@@ -26,7 +46,6 @@ class Order(models.Model):
     total_price = models.DecimalField(max_digits=10, decimal_places=2)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     created_at = models.DateTimeField(auto_now_add=True)
-
     products = models.ManyToManyField('Product', related_name='orders')
     payment = models.ForeignKey(Payment, on_delete=models.SET_NULL, null=True, blank=True)
 
@@ -57,15 +76,6 @@ class Product(models.Model):
     def __str__(self):
         return self.name
 
-
-class CreditCardPayment(Payment):
-    card_number = models.CharField(max_length=16)
-    expiration_date = models.DateField()
-    security_code = models.CharField(max_length=3)
-
-class MobileMoneyPayment(Payment):
-    phone_payment_number = models.CharField(max_length=20)
-    provider = models.CharField(max_length=30)
 
 
 class Delivery(models.Model):

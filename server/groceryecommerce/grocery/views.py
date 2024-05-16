@@ -144,15 +144,16 @@ class CreateOrderView(APIView):
         Create a new order.
         """
         try:
-            order_data = json.loads(request.body.decode('utf-8'))
-            products = order_data.get('products', [])
-            total_price = sum(Product.objects.filter(id__in=products).values_list('price', flat=True))
+            cart_id = request.data.get('cart_id')
+            cart = Cart.objects.get(id=cart_id)
+            total_price = sum(item.price for item in cart.items.all())
             order = Order.objects.create(
                 user=request.user,
                 total_price=total_price,
                 status='pending'
             )
-            order.products.add(*products)
+            order.products.add(*[item.product for item in cart.items.all()])
+            cart.delete()
             return Response({'success': True, 'order_id': order.id})
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
