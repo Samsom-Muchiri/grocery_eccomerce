@@ -19,6 +19,7 @@ from django.utils.decorators import method_decorator
 from .serializers import DeliverySerializer, CartSerializer
 from django.contrib.sessions.models import Session
 from rest_framework import generics
+from django.db.models import Sum
 
 
 def home(request):
@@ -412,4 +413,87 @@ class CreateProductView(APIView):
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+class SalesActivityView(APIView):
+
+    @swagger_auto_schema(
+        operation_id='sales_activity',
+        responses={
+            200: openapi.Response(
+                description="Sales activity",
+                schema=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        'items_remaining': openapi.Schema(type=openapi.TYPE_INTEGER),
+                        'items_sold': openapi.Schema(type=openapi.TYPE_INTEGER)
+                    }
+                )
+            )
+        }
+    )
+    def get(self, request):
+        """
+        Get the number of items remaining and items sold.
+        """
+        items_remaining = Product.objects.aggregate(total=Sum('quantity'))['total']
+        items_sold = Order.objects.aggregate(total=Sum('products__quantity'))['total']
         
+        return Response({
+            'items_remaining': items_remaining,
+            'items_sold': items_sold
+        })
+
+class GoodsSoldOnOfferView(APIView):
+
+    @swagger_auto_schema(
+        operation_id='goods_sold_on_offer',
+        responses={
+            200: openapi.Response(
+                description="Goods sold on offer and marked price",
+                schema=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        'goods_sold_on_offer': openapi.Schema(type=openapi.TYPE_INTEGER),
+                        'goods_sold_on_marked_price': openapi.Schema(type=openapi.TYPE_INTEGER)
+                    }
+                )
+            )
+        }
+    )
+    def get(self, request):
+        """
+        Get the total number of goods sold on offer and goods sold on marked price.
+        """
+        goods_sold_on_offer = Order.objects.filter(products__offer__isnull=False).aggregate(total=Sum('products__quantity'))['total']
+        goods_sold_on_marked_price = Order.objects.filter(products__offer__isnull=True).aggregate(total=Sum('products__quantity'))['total']
+
+        return Response({
+            'goods_sold_on_offer': goods_sold_on_offer,
+            'goods_sold_on_marked_price': goods_sold_on_marked_price
+        })
+
+class TotalSalesAmountView(APIView):
+
+    @swagger_auto_schema(
+        operation_id='total_sales_amount',
+        responses={
+            200: openapi.Response(
+                description="Total sales amount",
+                schema=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        'total_sales_amount': openapi.Schema(type=openapi.TYPE_NUMBER)
+                    }
+                )
+            )
+        }
+    )
+    def get(self, request):
+        """
+        Get the total amount received from the total sales.
+        """
+        total_sales_amount = Payment.objects.filter(status='successful').aggregate(total=Sum('amount'))['total']
+        
+        return Response({
+            'total_sales_amount': total_sales_amount
+        })

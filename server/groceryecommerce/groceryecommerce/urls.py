@@ -3,7 +3,7 @@ from django.urls import path
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
-from grocery.views import ProductListView, CreateOrderView, OrderListView, OrderDetailView, UserRegisterView, UserProfileView, PaymentView, home, DeliveryListView, DeliveryDetailView, ProductListByCategory, AddToCart, UpdateCart, CreateProductView
+from grocery.views import ProductListView, CreateOrderView, OrderListView, OrderDetailView, UserRegisterView, UserProfileView, PaymentView, home, DeliveryListView, DeliveryDetailView, ProductListByCategory, AddToCart, UpdateCart, CreateProductView, SalesActivityView, GoodsSoldOnOfferView, TotalSalesAmountView
 from django.contrib.auth.views import LoginView
 from MpesaViews.mpesaexpress import initiate_mpesa_stk_push, mpesa_callback
 
@@ -41,6 +41,9 @@ urlpatterns = [
     path('create-product/', CreateProductView.as_view(), name='create_product'),
     path("mpesa/callback/", mpesa_callback, name="mpesa_callback"),
     path("mpesa/stkpush/", initiate_mpesa_stk_push, name="stk_push"),
+    path('sale-activity/', SalesActivityView.as_view(), name='sale-activity'),
+    path('goods-sold/', GoodsSoldOnOfferView.as_view(), name='goods-sold'),
+    path('total-sales-amount/', TotalSalesAmountView.as_view(), name='total-sales-amount'),
     # path("mpesa/mpesapayments/", MobileMoneyPayment, name="mpesapayments")
 
 ]
