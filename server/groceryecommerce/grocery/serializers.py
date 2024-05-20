@@ -57,8 +57,16 @@ class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = '__all__'
-        
+
+class TipSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Subcategory
+        fields = '__all__'
+
+
 class OrderSerializer(serializers.ModelSerializer):
+    tip = TipSerializer()
     class Meta:
         model = Order
         fields = '__all__'
@@ -96,12 +104,6 @@ class CategorySerializer(serializers.ModelSerializer):
 
 class SubcategorySerializer(serializers.ModelSerializer):
     category = CategorySerializer()
-
-    class Meta:
-        model = Subcategory
-        fields = '__all__'
-
-class TipSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Subcategory

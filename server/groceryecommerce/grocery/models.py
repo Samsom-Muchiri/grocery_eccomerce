@@ -33,6 +33,12 @@ class MobileMoneyPayment(Payment):
     mpesa_transaction_id = models.CharField(max_length=200, blank=True, null=True)
     
 
+class Tip(models.Model):
+    amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    
+    def __str__(self):
+        return f"Tip for Order #{self.order.id}"
+    
 class Order(models.Model):
     STATUS_CHOICES = [
         ('pending', 'Pending'),
@@ -48,6 +54,22 @@ class Order(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     products = models.ManyToManyField('Product', related_name='orders')
     payment = models.ForeignKey(Payment, on_delete=models.SET_NULL, null=True, blank=True)
+    tip = models.OneToOneField(Tip, on_delete=models.CASCADE, blank=True, null=True)
+    total_amount = models.DecimalField(default=0.0, max_digits=10, decimal_places=2)
+
+    def save(self, *args, **kwargs):
+        if not self.tip:
+            self.tip = Tip.objects.create(amount=0)
+        self.total_amount = self.calculate_total_amount()
+        super().save(*args, **kwargs)
+    
+    def calculate_total_amount(self):
+        # delivery_cost = self.delivery.calculate_delivery_cost()
+        payment_cost = self.payment.calculate_payment_cost()
+        tip_amount = self.tip.amount if self.tip else 0
+        total = payment_cost + tip_amount
+        return total
+
 
     def __str__(self):
         return f"Order #{self.id} - {self.user.username}"
@@ -111,11 +133,3 @@ class CartItem(models.Model):
     price = models.FloatField(null=True)
     offer = models.FloatField(null=True)
     quantity = models.IntegerField(null=False, default=1)
-
-class Tip(models.Model):
-    amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    order = models.OneToOneField(Order, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return f"Tip for Order #{self.order.id}"
-    

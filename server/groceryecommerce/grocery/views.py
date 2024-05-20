@@ -132,6 +132,7 @@ class CreateOrderView(APIView):
         type='object',
         properties={
             'products': openapi.Schema(type='array', items=openapi.Schema(type='integer')),
+            'tip_amount': openapi.Schema(type='number')
         }
     ), responses={200: openapi.Response(description="Order created successfully", schema=openapi.Schema(
         type='object',
@@ -148,17 +149,26 @@ class CreateOrderView(APIView):
             cart_id = request.data.get('cart_id')
             cart = Cart.objects.get(id=cart_id)
             total_price = sum(item.price for item in cart.items.all())
+
+            tip_amount = request.data.get('tip_amount', 0)
+            total_price += tip_amount
+
             order = Order.objects.create(
                 user=request.user,
                 total_price=total_price,
                 status='pending'
             )
             order.products.add(*[item.product for item in cart.items.all()])
+            
+            tip = Tip.objects.create(amount=tip_amount)
+            order.tip = tip
+            
+            order.save()
+            
             cart.delete()
             return Response({'success': True, 'order_id': order.id})
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
-
 
 class DeliveryListView(APIView):
     permission_classes = [IsAuthenticated]
@@ -310,7 +320,6 @@ class AddToCart(APIView):
             cart, created = Cart.objects.get_or_create(user=request.user)
             price = request.data.get('price', product.price)
 
-            # Add the product to the cart multiple times based on the quantity
             for _ in range(quantity):
                 cart_item, _ = CartItem.objects.get_or_create(cart=cart, product=product)
 
