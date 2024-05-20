@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Product, Order, Delivery, Cart, MpesaResponseBody, Payment, MobileMoneyPayment
+from .models import Product, Order, Delivery, Cart, MpesaResponseBody, Payment, MobileMoneyPayment, Category, Tip, Subcategory
 
 
 # class SendSTKPushSerializer(serializers.Serializer):
@@ -47,6 +47,13 @@ class MpesaResponseBodySerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 class ProductSerializer(serializers.ModelSerializer):
+    image_url = serializers.SerializerMethodField()
+
+    def get_image_url(self, obj):
+        request = self.context.get('request')
+        if obj.picture and request.host:
+            return f"{request.scheme}://{request.host}{obj.picture.url}"
+        return None
     class Meta:
         model = Product
         fields = '__all__'
@@ -63,6 +70,10 @@ class DeliverySerializer(serializers.ModelSerializer):
         fields = '__all__' 
 
 class CartSerializer(serializers.ModelSerializer):
+    user_id = serializers.SerializerMethodField()
+
+    def get_user_id(self, obj):
+        return obj.user.id
     class Meta:
         model = Cart
         fields = '__all__'
@@ -76,3 +87,23 @@ class MobileMoneyPaymentSerializer(serializers.ModelSerializer):
     class Meta:
         model = MobileMoneyPayment
         fields = '__all__'
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = '__all__'
+
+class SubcategorySerializer(serializers.ModelSerializer):
+    category = CategorySerializer()
+
+    class Meta:
+        model = Subcategory
+        fields = '__all__'
+
+class TipSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Subcategory
+        fields = '__all__'
+

@@ -6,6 +6,7 @@ from drf_yasg import openapi
 from grocery.views import ProductListView, CreateOrderView, OrderListView, OrderDetailView, UserRegisterView, UserProfileView, PaymentView, home, DeliveryListView, DeliveryDetailView, ProductListByCategory, AddToCart, UpdateCart, CreateProductView, SalesActivityView, GoodsSoldOnOfferView, TotalSalesAmountView
 from django.contrib.auth.views import LoginView
 from MpesaViews.mpesaexpress import initiate_mpesa_stk_push, mpesa_callback
+from MpesaViews.testview import send_prompt, send_prompt_res
 
 
 schema_view = get_schema_view(
@@ -44,7 +45,10 @@ urlpatterns = [
     path('sale-activity/', SalesActivityView.as_view(), name='sale-activity'),
     path('goods-sold/', GoodsSoldOnOfferView.as_view(), name='goods-sold'),
     path('total-sales-amount/', TotalSalesAmountView.as_view(), name='total-sales-amount'),
+    path('mpesa_prompt/', send_prompt, name='send_prompt'),
+    path('prompt_res/', send_prompt_res, name='send_prompt_res'),
     # path("mpesa/mpesapayments/", MobileMoneyPayment, name="mpesapayments")
+
 
 ]
 

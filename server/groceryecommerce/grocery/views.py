@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
-from .models import Product, Order, User, Payment, CreditCardPayment, MobileMoneyPayment, Delivery, Cart, CartItem
+from .models import Product, Order, User, Payment, CreditCardPayment, MobileMoneyPayment, Delivery, Cart, CartItem, Category, Subcategory, Tip
 import json
 from django import forms
 from django.contrib.auth.decorators import login_required
@@ -497,3 +497,39 @@ class TotalSalesAmountView(APIView):
         return Response({
             'total_sales_amount': total_sales_amount
         })
+
+class ProductListByCategory(generics.ListAPIView):
+    serializer_class = ProductSerializer
+
+    @swagger_auto_schema(
+        operation_id='list_products_by_category',
+        responses={200: openapi.Response(description="List of products by category", schema=ProductSerializer(many=True))}
+    )
+    def get_queryset(self):
+        """
+        Get a list of products by category.
+        """
+        category_slug = self.kwargs['category']
+        try:
+            category = Category.objects.get(slug=category_slug)
+            return Product.objects.filter(category=category)
+        except Category.DoesNotExist:
+            return Product.objects.none()
+
+class ProductListBySubcategory(generics.ListAPIView):
+    serializer_class = ProductSerializer
+
+    @swagger_auto_schema(
+        operation_id='list_products_by_subcategory',
+        responses={200: openapi.Response(description="List of products by subcategory", schema=ProductSerializer(many=True))}
+    )
+    def get_queryset(self):
+        """
+        Get a list of products by subcategory.
+        """
+        subcategory_slug = self.kwargs['subcategory']
+        try:
+            subcategory = Subcategory.objects.get(slug=subcategory_slug)
+            return Product.objects.filter(subcategory=subcategory)
+        except Subcategory.DoesNotExist:
+            return Product.objects.none()
