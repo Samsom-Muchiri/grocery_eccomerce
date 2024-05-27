@@ -506,25 +506,6 @@ class TotalSalesAmountView(APIView):
         return Response({
             'total_sales_amount': total_sales_amount
         })
-
-class ProductListByCategory(generics.ListAPIView):
-    serializer_class = ProductSerializer
-
-    @swagger_auto_schema(
-        operation_id='list_products_by_category',
-        responses={200: openapi.Response(description="List of products by category", schema=ProductSerializer(many=True))}
-    )
-    def get_queryset(self):
-        """
-        Get a list of products by category.
-        """
-        category_slug = self.kwargs['category']
-        try:
-            category = Category.objects.get(slug=category_slug)
-            return Product.objects.filter(category=category)
-        except Category.DoesNotExist:
-            return Product.objects.none()
-
 class ProductListBySubcategory(generics.ListAPIView):
     serializer_class = ProductSerializer
 

@@ -97,7 +97,7 @@ class Product(models.Model):
     subcategory = models.ForeignKey(Subcategory, on_delete=models.CASCADE, related_name='products')
     quantity = models.PositiveIntegerField(default=0)
     availability = models.BooleanField(default=True)
-    offer = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, help_text="Offer or discount on the product")
+    discount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, help_text="Offer or discount on the product")
     keywords = models.TextField(help_text="Enter keywords separated by commas")
     organic = models.BooleanField(default=True)
 
