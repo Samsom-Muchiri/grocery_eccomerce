@@ -94,7 +94,7 @@ class ProductListView(APIView):
         Get a list of products.
         """
         products = Product.objects.all()
-        serializer = ProductSerializer(products, many=True)
+        serializer = ProductSerializer(products, many=True, context={'request': request})
         return Response(serializer.data)
 
 class OrderListView(APIView):

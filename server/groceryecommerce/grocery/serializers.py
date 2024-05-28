@@ -49,14 +49,15 @@ class MpesaResponseBodySerializer(serializers.ModelSerializer):
 class ProductSerializer(serializers.ModelSerializer):
     image_url = serializers.SerializerMethodField()
 
-    def get_image_url(self, obj):
-        request = self.context.get('request')
-        if obj.picture and request.host:
-            return f"{request.scheme}://{request.host}{obj.picture.url}"
-        return None
     class Meta:
         model = Product
         fields = '__all__'
+    
+    def get_image_url(self, obj):
+        request = self.context.get('request', None)
+        if obj.picture and request:
+            return request.build_absolute_uri(obj.picture.url)
+        return None
 
 class TipSerializer(serializers.ModelSerializer):
 
