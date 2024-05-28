@@ -100,6 +100,8 @@ class Product(models.Model):
     discount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, help_text="Offer or discount on the product")
     keywords = models.TextField(help_text="Enter keywords separated by commas")
     organic = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.name

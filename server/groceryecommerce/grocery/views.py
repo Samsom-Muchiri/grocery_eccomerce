@@ -19,8 +19,8 @@ from django.utils.decorators import method_decorator
 from .serializers import DeliverySerializer, CartSerializer
 from django.contrib.sessions.models import Session
 from rest_framework import generics
-from django.db.models import Sum
-
+from django.db.models import Sum, F, ExpressionWrapper, DateTimeField, Max
+import random
 
 def home(request):
     return render(request, 'home.html')
@@ -528,20 +528,40 @@ class TotalSalesAmountView(APIView):
         return Response({
             'total_sales_amount': total_sales_amount
         })
-class ProductListBySubcategory(generics.ListAPIView):
+class TopPicksView(APIView):
+  """
+  API endpoint to retrieve a random selection of top 10 picks (products).
+  """
+  def get(self, request):
+    all_products = Product.objects.filter(availability=True)
+    top_picks = random.sample(list(all_products), 10)
+    serializer = ProductSerializer(top_picks, many=True)
+    return Response(serializer.data)
+
+class NewArrivalsView(generics.ListAPIView):
     serializer_class = ProductSerializer
 
     @swagger_auto_schema(
-        operation_id='list_products_by_subcategory',
-        responses={200: openapi.Response(description="List of products by subcategory", schema=ProductSerializer(many=True))}
+        operation_id='list_new_arrivals',
+        responses={200: openapi.Response(description="List of new arrivals", schema=ProductSerializer(many=True))}
     )
     def get_queryset(self):
         """
-        Get a list of products by subcategory.
+        Get a list of the latest 6 products considering both creation and update timestamps.
         """
-        subcategory_slug = self.kwargs['subcategory']
-        try:
-            subcategory = Subcategory.objects.get(slug=subcategory_slug)
-            return Product.objects.filter(subcategory=subcategory)
-        except Subcategory.DoesNotExist:
-            return Product.objects.none()
+        return Product.objects.annotate(
+            most_recent_action=Max(F('created_at'), F('updated_at'))
+        ).order_by('-most_recent_action')[:6]
+
+class OrganicProductsView(generics.ListAPIView):
+    serializer_class = ProductSerializer
+
+    @swagger_auto_schema(
+        operation_id='list_organic_products',
+        responses={200: openapi.Response(description="List of organic products", schema=ProductSerializer(many=True))}
+    )
+    def get_queryset(self):
+        """
+        Get a list of products that are 100% organic.
+        """
+        return Product.objects.filter(organic=True)

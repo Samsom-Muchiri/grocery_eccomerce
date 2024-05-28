@@ -3,7 +3,7 @@ from django.urls import path
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
-from grocery.views import ProductListView, CreateOrderView, OrderListView, OrderDetailView, UserRegisterView, UserProfileView, PaymentView, home, DeliveryListView, DeliveryDetailView, ProductListByCategory, AddToCart, UpdateCart, CreateProductView, SalesActivityView, GoodsSoldOnOfferView, TotalSalesAmountView, ProductListBySubCategory
+from grocery.views import ProductListView, CreateOrderView, OrderListView, OrderDetailView, UserRegisterView, UserProfileView, PaymentView, home, DeliveryListView, DeliveryDetailView, ProductListByCategory, AddToCart, UpdateCart, CreateProductView, SalesActivityView, GoodsSoldOnOfferView, TotalSalesAmountView, ProductListBySubCategory, TopPicksView, NewArrivalsView, OrganicProductsView
 from django.contrib.auth.views import LoginView
 from MpesaViews.mpesaexpress import initiate_mpesa_stk_push, mpesa_callback
 from MpesaViews.testview import send_prompt, send_prompt_res
@@ -48,6 +48,9 @@ urlpatterns = [
     path('total-sales-amount/', TotalSalesAmountView.as_view(), name='total-sales-amount'),
     path('mpesa_prompt/', send_prompt, name='send_prompt'),
     path('prompt_res/', send_prompt_res, name='send_prompt_res'),
+    path('top-picks/', TopPicksView.as_view()),
+    path('products/new-arrivals/', NewArrivalsView.as_view(), name='new-arrivals'),
+    path('products/organic/', OrganicProductsView.as_view(), name='organic-products'),
     # path("mpesa/mpesapayments/", MobileMoneyPayment, name="mpesapayments")
 
 
