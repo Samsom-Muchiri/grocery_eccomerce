@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import "../../styles/search.css";
 import { productData } from "../../fakeData";
 import { CONT } from "../../AppContext/context";
@@ -9,19 +9,20 @@ function Search({ closeSearch }) {
   const vl = useContext(CONT);
   const [searchResult, setSearchResult] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [resentSearch, setRecentSearch] = useState([
-    { search: "Carrots", id: 1 },
-    { search: "Mangoes", id: 2 },
-    { search: "Fish", id: 3 },
-    { search: "green grams", id: 4 },
-  ]);
+  const [recentSearch, setRecentSearch] = useState([]);
+  useEffect(() => {
+    const rs = localStorage.getItem("recent_search");
+    if (rs) {
+      setRecentSearch(JSON.parse(rs));
+    }
+  }, []);
   const debouncedSetSearchQuery = _debounce((value) => {
     setSearchQuery(value);
   }, 300);
-
+  console.log(searchQuery);
   const productSuggestion = productData.slice(0, 6);
   const popularSearch = productData.slice(5, 10);
-
+  const searchInputRef = useRef(null);
   return (
     <div className="search-card-cnt">
       <div className="search-card">
@@ -31,6 +32,7 @@ function Search({ closeSearch }) {
             <input
               type="text"
               placeholder="Search all our groceries"
+              ref={searchInputRef}
               onInput={(e) => debouncedSetSearchQuery(e.target.value)}
             />
           </div>
@@ -40,21 +42,31 @@ function Search({ closeSearch }) {
         </section>
         {searchQuery === "" ? (
           <div className="search-sec-cnt">
-            {resentSearch.length > 0 && (
+            {recentSearch.length > 0 && (
               <section>
                 <h1 style={{ marginTop: "0.5rem" }}>Recent search</h1>
                 <div className="recent-search">
-                  {resentSearch.map((search) => {
+                  {recentSearch.map((search) => {
                     return (
-                      <div className="rs" key={search.id + search.search}>
+                      <div
+                        className="rs"
+                        key={search.id + search.search}
+                        onClick={() => {
+                          if (searchInputRef.current) {
+                            searchInputRef.current.value = search.search;
+                          }
+                          setSearchQuery(search.search);
+                        }}
+                      >
                         {search.search}
                         <div
                           className="rs-delete"
-                          onClick={() =>
+                          onClick={(e) => {
+                            e.stopPropagation();
                             setRecentSearch((prev) =>
                               prev.filter((sc) => sc.id !== search.id)
-                            )
-                          }
+                            );
+                          }}
                         >
                           <span className="material-symbols-outlined">
                             close
@@ -117,14 +129,34 @@ function Search({ closeSearch }) {
           <ul className="search-results">
             {productData
               .filter((product) =>
-                product.name.toLocaleLowerCase().includes(searchQuery)
+                product.name
+                  .toLocaleLowerCase()
+                  .includes(searchQuery.toLocaleLowerCase())
               )
               .slice(0, 7)
               .map((result) => (
                 <Link
                   to={`/product/${result.name}_${result.id}`}
                   key={result.name}
-                  onClick={() => closeSearch(false)}
+                  onClick={() => {
+                    closeSearch(false);
+                    const rs = localStorage.getItem("recent_search");
+                    if (rs) {
+                      const rsSet = JSON.parse(rs);
+                      localStorage.setItem(
+                        "recent_search",
+                        JSON.stringify([
+                          { search: result.name, id: result.id },
+                          ...rsSet.slice(0, 10),
+                        ])
+                      );
+                    } else {
+                      localStorage.setItem(
+                        "recent_search",
+                        JSON.stringify([{ search: result.name, id: result.id }])
+                      );
+                    }
+                  }}
                 >
                   <li>
                     <div className="s-r-img">

@@ -17,6 +17,11 @@ import drinks from "../../assets/ct-drink.png";
 import { CONT } from "../../AppContext/context";
 import { Link } from "react-router-dom";
 import { productData } from "../../fakeData";
+import { useMutation, useQuery } from "react-query";
+import { base_url } from "../../base_url";
+import axios from "axios";
+import Loader from "../Reusables/Loader";
+import AddButton from "../Reusables/AddButton";
 
 function LandingPage() {
   const [fqa, setFqa] = useState([]);
@@ -34,6 +39,22 @@ function LandingPage() {
     });
     setFqa(fqaObj);
   }, []);
+
+  const products = useQuery(
+    "products",
+    async () => {
+      const response = await axios.get(`${base_url}/products/`, {
+        headers: {
+          Authorization: `Bearer ${vl.token}`,
+        },
+      });
+      return response.data;
+    },
+    {
+      refetchInterval: 300000, // Refetch data every 10 seconds (in milliseconds)
+      refetchIntervalInBackground: true, // Allow refetching even when the component is not visible
+    }
+  );
   const topCategories = [
     {
       image: veg,
@@ -135,71 +156,7 @@ function LandingPage() {
                           <li>{vl.formatCurrencyKE(price)}</li>
                         </ul>
                       </div>
-                      {vl.cartData.some(
-                        (item) => item.id === id && item.name === name
-                      ) ? (
-                        <ul className="cart-t-q">
-                          <li
-                            onClick={() => {
-                              const targetIndex = vl.cartData.findIndex(
-                                (item) => item.id === id && item.name === name
-                              );
-                              if (targetIndex !== -1) {
-                                const cartData = [...vl.cartData];
-                                cartData[targetIndex] = {
-                                  ...cartData[targetIndex],
-                                  quantity: Math.max(
-                                    cartData[targetIndex].quantity - 1,
-                                    1
-                                  ), // Ensure quantity is at least 1
-                                };
-                                vl.setCartData(cartData);
-                              }
-                            }}
-                          >
-                            -
-                          </li>
-                          <li>
-                            {
-                              vl.cartData.find(
-                                (item) => item.id === id && item.name === name
-                              )?.quantity
-                            }
-                          </li>
-                          <li
-                            onClick={() => {
-                              const targetIndex = vl.cartData.findIndex(
-                                (item) => item.id === id && item.name === name
-                              );
-                              if (targetIndex !== -1) {
-                                const cartData = [...vl.cartData];
-                                cartData[targetIndex] = {
-                                  ...cartData[targetIndex],
-                                  quantity: cartData[targetIndex].quantity + 1,
-                                };
-                                vl.setCartData(cartData);
-                              }
-                            }}
-                          >
-                            +
-                          </li>
-                        </ul>
-                      ) : (
-                        <button
-                          className="cart-add-btn"
-                          onClick={() =>
-                            vl.setCartData((prev) => [
-                              ...prev,
-                              { ...product, quantity: 1 },
-                            ])
-                          }
-                        >
-                          ADD{" "}
-                          <span className="material-symbols-outlined">
-                            shopping_cart
-                          </span>
-                        </button>
-                      )}
+                      <AddButton type="small" product={product} />
                     </div>
                   </Fragment>
                 );

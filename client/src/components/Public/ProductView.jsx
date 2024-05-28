@@ -10,7 +10,6 @@ function ProductView() {
   const { view } = useParams();
   const productId = view.split("_")[1];
   const product = productData.filter((product) => product.id === productId)[0];
-  console.log(product);
   const { id, name, image, price, discount, description } = product;
 
   const ProductSection = ({ products, title }) => {

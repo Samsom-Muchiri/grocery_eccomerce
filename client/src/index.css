@@ -41,7 +41,7 @@ a {
   font-variation-settings: "FILL" 0, "wght" 300, "GRAD" 0, "opsz" 24;
 }
 .sc-btn {
-  background-color: #b2cbd3;
+  background-color: var(--color4);
   border: none;
   outline: none;
   border-radius: 0.3rem;
@@ -80,25 +80,7 @@ a {
 .section-head .material-symbols-outlined {
   font-variation-settings: "FILL" 0, "wght" 500, "GRAD" 0, "opsz" 24;
 }
-.loader {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  display: inline-block;
-  border-top: 3px solid purple;
-  border-right: 3px solid transparent;
-  box-sizing: border-box;
-  animation: rotation 1s linear infinite;
-}
 
-@keyframes rotation {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
 .data-table-cnt {
   position: relative;
   border-radius: 0.5rem;

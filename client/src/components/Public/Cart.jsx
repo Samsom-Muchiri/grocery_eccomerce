@@ -66,6 +66,12 @@ function Cart() {
                           ),
                         };
                         vl.setCartData(cartData);
+                        if (!vl.userIsLoged) {
+                          localStorage.setItem(
+                            "cart_data",
+                            JSON.stringify(cartData)
+                          );
+                        }
                       }
                     }}
                   >
@@ -84,6 +90,12 @@ function Cart() {
                           quantity: cartData[targetIndex].quantity + 1,
                         };
                         vl.setCartData(cartData);
+                        if (!vl.userIsLoged) {
+                          localStorage.setItem(
+                            "cart_data",
+                            JSON.stringify(cartData)
+                          );
+                        }
                       }
                     }}
                   >
@@ -93,11 +105,17 @@ function Cart() {
               </div>
               <span
                 className="material-symbols-outlined ci-delete"
-                onClick={() =>
+                onClick={() => {
                   vl.setCartData((prev) =>
                     prev.filter((item) => item.name !== name && item.id !== id)
-                  )
-                }
+                  );
+                  if (!vl.userIsLoged) {
+                    localStorage.setItem(
+                      "cart_data",
+                      JSON.stringify(vl.cartData)
+                    );
+                  }
+                }}
               >
                 delete
               </span>

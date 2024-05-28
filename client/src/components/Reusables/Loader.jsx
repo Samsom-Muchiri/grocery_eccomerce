@@ -1,10 +1,7 @@
 import React from "react";
+import "../../styles/loader.css";
 function Loader() {
-  return (
-    <div className="loader-container">
-      <span class="loader"></span>
-    </div>
-  );
+  return <div class="loader"></div>;
 }
 
 export default Loader;

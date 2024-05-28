@@ -271,11 +271,11 @@ function Nav() {
           <li
             onClick={() => vl.setCartOpen(true)}
             className="cart-icon"
-            datacount={vl.cartData.length}
+            datacount={vl?.cartData.length}
           >
             <span className="material-symbols-outlined">shopping_cart</span>
           </li>
-          {vl.userIsLoged ? (
+          {vl?.userIsLoged ? (
             <Link to="/account/my_account">
               <li>
                 <span className="material-symbols-outlined">
