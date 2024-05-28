@@ -277,9 +277,31 @@ class ProductListByCategory(generics.ListAPIView):
         """
         Get a list of products by category.
         """
-        category = self.kwargs['category']
-        return Product.objects.filter(category=category)
+        category_name = self.kwargs['category']
+        category = Category.objects.filter(name=category_name).first()
+        if category:
+            return Product.objects.filter(category=category)
+        else:
+            return Product.objects.none()
+        
+class ProductListBySubCategory(generics.ListAPIView):
+    serializer_class = ProductSerializer
 
+    @swagger_auto_schema(
+        operation_id='list_products_by_category',
+        responses={200: openapi.Response(description="List of products by subcategory", schema=ProductSerializer(many=True))}
+    )
+    def get_queryset(self):
+        """
+        Get a list of products by category.
+        """
+        subcategory_name = self.kwargs['subcategory']
+        subcategory = Subcategory.objects.filter(name=subcategory_name).first()
+        if subcategory:
+            return Product.objects.filter(subcategory=subcategory)
+        else:
+            return Product.objects.none()
+        
 
 class AddToCart(APIView):
     permission_classes = [IsAuthenticated]

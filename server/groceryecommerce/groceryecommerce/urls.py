@@ -3,7 +3,7 @@ from django.urls import path
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
-from grocery.views import ProductListView, CreateOrderView, OrderListView, OrderDetailView, UserRegisterView, UserProfileView, PaymentView, home, DeliveryListView, DeliveryDetailView, ProductListByCategory, AddToCart, UpdateCart, CreateProductView, SalesActivityView, GoodsSoldOnOfferView, TotalSalesAmountView
+from grocery.views import ProductListView, CreateOrderView, OrderListView, OrderDetailView, UserRegisterView, UserProfileView, PaymentView, home, DeliveryListView, DeliveryDetailView, ProductListByCategory, AddToCart, UpdateCart, CreateProductView, SalesActivityView, GoodsSoldOnOfferView, TotalSalesAmountView, ProductListBySubCategory
 from django.contrib.auth.views import LoginView
 from MpesaViews.mpesaexpress import initiate_mpesa_stk_push, mpesa_callback
 from MpesaViews.testview import send_prompt, send_prompt_res
@@ -37,6 +37,7 @@ urlpatterns = [
     path('deliveries/<int:order_id>/', DeliveryListView.as_view(), name='delivery_list'),
     path('deliveries/<int:delivery_id>/', DeliveryDetailView.as_view(), name='delivery_detail'),
     path('products/<str:category>/', ProductListByCategory.as_view(), name='product-list-by-category'),
+    path('products/<str:subcategory>/', ProductListBySubCategory.as_view(), name='product-list-by-subcategory'),
     path('add-to-cart/', AddToCart.as_view(), name='add-to-cart'),
     path('update-cart/<int:pk>/', UpdateCart.as_view(), name='update-cart'),
     path('create-product/', CreateProductView.as_view(), name='create_product'),

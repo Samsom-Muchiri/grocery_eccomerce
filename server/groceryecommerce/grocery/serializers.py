@@ -48,16 +48,25 @@ class MpesaResponseBodySerializer(serializers.ModelSerializer):
 
 class ProductSerializer(serializers.ModelSerializer):
     image_url = serializers.SerializerMethodField()
+    category_name = serializers.SerializerMethodField()
+    subcategory_name = serializers.SerializerMethodField()
 
     class Meta:
         model = Product
         fields = '__all__'
+        extra_fields = ['category_name', 'subcategory_name']
     
     def get_image_url(self, obj):
         request = self.context.get('request', None)
         if obj.picture and request:
             return request.build_absolute_uri(obj.picture.url)
         return None
+    
+    def get_category_name(self, obj):
+        return obj.category.name if obj.category else None
+    
+    def get_subcategory_name(self, obj):
+        return obj.category.name if obj.category else None
 
 class TipSerializer(serializers.ModelSerializer):
 
