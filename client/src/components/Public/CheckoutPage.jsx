@@ -9,6 +9,7 @@ function CheckoutPage() {
     <div className="chakout-cnt">
       <form className="checkout-info">
         <h2>Contact</h2>
+        <small>Enter contact that will use to contact you</small>
 
         <div className="ci-field">
           <input required type="text" name="contact" />
@@ -19,6 +20,7 @@ function CheckoutPage() {
 
         <h2>Delivery</h2>
         <div className="delivery-fields">
+          <small>Country</small>
           <select name="country">
             <option value="">Choose</option>
             <option value="kenya">Kenya</option>

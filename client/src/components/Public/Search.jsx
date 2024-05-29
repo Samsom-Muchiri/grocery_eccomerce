@@ -19,7 +19,6 @@ function Search({ closeSearch }) {
   const debouncedSetSearchQuery = _debounce((value) => {
     setSearchQuery(value);
   }, 300);
-  console.log(searchQuery);
   const productSuggestion = productData.slice(0, 6);
   const popularSearch = productData.slice(5, 10);
   const searchInputRef = useRef(null);
@@ -65,6 +64,10 @@ function Search({ closeSearch }) {
                             e.stopPropagation();
                             setRecentSearch((prev) =>
                               prev.filter((sc) => sc.id !== search.id)
+                            );
+                            localStorage.setItem(
+                              "recent_search",
+                              JSON.stringify(recentSearch)
                             );
                           }}
                         >
@@ -143,13 +146,16 @@ function Search({ closeSearch }) {
                     const rs = localStorage.getItem("recent_search");
                     if (rs) {
                       const rsSet = JSON.parse(rs);
-                      localStorage.setItem(
-                        "recent_search",
-                        JSON.stringify([
-                          { search: result.name, id: result.id },
-                          ...rsSet.slice(0, 10),
-                        ])
-                      );
+                      const rsIds = rsSet.map((r) => r.id);
+                      if (!rsIds.includes(result.id)) {
+                        localStorage.setItem(
+                          "recent_search",
+                          JSON.stringify([
+                            { search: result.name, id: result.id },
+                            ...rsSet.slice(0, 10),
+                          ])
+                        );
+                      }
                     } else {
                       localStorage.setItem(
                         "recent_search",

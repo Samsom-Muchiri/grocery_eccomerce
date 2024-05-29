@@ -9,6 +9,7 @@ import { ToastContainer, toast } from "react-toastify";
 import { useMutation } from "react-query";
 import axios from "axios";
 import Loader from "../../Reusables/Loader";
+import { base_url } from "../../../base_url";
 
 function Nav() {
   const vl = useContext(CONT);
@@ -32,7 +33,7 @@ function Nav() {
 
   const registerUser = useMutation(
     async (data) => {
-      const response = await axios.post(`${baseUrl}/users/register/`, data);
+      const response = await axios.post(`${base_url}/register/`, data);
       return response.data;
     },
     {
@@ -49,7 +50,7 @@ function Nav() {
 
   const loginUser = useMutation(
     async (data) => {
-      const response = await axios.post(`${baseUrl}/users/login/`, data);
+      const response = await axios.post(`${base_url}/login/`, data);
       return response.data;
     },
     {
@@ -73,7 +74,7 @@ function Nav() {
             const formData = new FormData(e.target);
             if (formData.get("password1") === formData.get("password2")) {
               registerUser.mutate({
-                username: formData.get("email"),
+                username: formData.get("username"),
                 password1: formData.get("password1"),
                 password2: formData.get("password2"),
               });
@@ -88,13 +89,13 @@ function Nav() {
           >
             close
           </span>
-          <div className="log-form-head">Create your LinX account</div>
+          <div className="log-form-head">Create your [company] account</div>
           <div className="log-form-imp">
-            <span>Email</span>
+            <span>Username</span>
             <input
               type="text"
-              name="email"
-              placeholder="name@company.com"
+              name="username"
+              placeholder="Username"
               required
             />
           </div>
@@ -118,7 +119,6 @@ function Nav() {
               required
             />
           </div>
-          <span>Remember me</span>
           <input type="checkbox" />
           <button
             className="log-submit-btn"
@@ -153,9 +153,8 @@ function Nav() {
             const formData = new FormData(e.target);
 
             loginUser.mutate({
-              username: formData.get("email"),
+              username: formData.get("username"),
               password1: formData.get("password1"),
-              password2: formData.get("password1"),
             });
           }}
         >
@@ -167,11 +166,11 @@ function Nav() {
           </span>
           <div className="log-form-head">Sign in to your account</div>
           <div className="log-form-imp">
-            <span>Email</span>
+            <span>Username</span>
             <input
               type="text"
-              name="email"
-              placeholder="name@company.com"
+              name="username"
+              placeholder="Username"
               required
             />
           </div>
