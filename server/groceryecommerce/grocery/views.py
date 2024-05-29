@@ -27,7 +27,18 @@ from rest_framework.permissions import AllowAny
 from django.contrib.auth import login, authenticate, logout
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
+from django.views.decorators.http import require_POST
+from django.middleware.csrf import get_token
 
+
+
+def csrf_token_view(request):
+    """
+    View to fetch CSRF token.
+    """
+    csrf_token = get_token(request)
+    
+    return JsonResponse({'csrf_token': csrf_token})
 
 class CsrfExemptSessionAuthentication(SessionAuthentication):
     def enforce_csrf(self, request):
@@ -149,8 +160,8 @@ class PaymentView(APIView):
             return JsonResponse({'error': 'Invalid data'}, status=400)
 
 class UserLoginView(APIView):
-    authentication_classes = [CsrfExemptSessionAuthentication, JsonSessionAuthentication]
-    # permission_classes = [AllowAny]
+    # authentication_classes = [CsrfExemptSessionAuthentication, JsonSessionAuthentication]
+    permission_classes = [AllowAny]
 
     @swagger_auto_schema(
         operation_id='user_login',
@@ -184,7 +195,6 @@ class UserLoginView(APIView):
         else:
             return Response({'error': 'Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
         
-
 class ProductListView(APIView):
     authentication_classes = []
     
