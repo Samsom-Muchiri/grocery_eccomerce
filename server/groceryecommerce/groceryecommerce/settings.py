@@ -34,11 +34,13 @@ INSTALLED_APPS = [
     'rest_framework',
     'grocery',
     'drf_yasg',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -46,6 +48,35 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+CORS_ALLOW_ALL_ORIGINS = True
+
+# CORS_ALLOWED_ORIGINS = [
+#     'http://localhost:3000',
+#     'https://grocery-ecommerce.vercel.app'
+# ]
+
+
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOWED_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+]
+CORS_ALLOWED_HEADERS = [
+    'accept',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
+
 
 ROOT_URLCONF = 'groceryecommerce.urls'
 
@@ -78,7 +109,7 @@ DATABASES = {
     }
 }
 
-DATABASES["default"] = dj_database_url.parse("postgres://personalprojects_kqsm_user:kshxLVbDydW9FGW4Z93EeZxcPwOWBfHA@dpg-copiac779t8c73fuo970-a.oregon-postgres.render.com/grocery")
+DATABASES["default"] = dj_database_url.parse("postgres://personalprojects_kqsm_user:kshxLVbDydW9FGW4Z93EeZxcPwOWBfHA@dpg-copiac779t8c73fuo970-a.oregon-postgres.render.com/groceryupdate")
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -130,3 +161,11 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+MPESA_ENVIRONMENT = 'sandbox'
+
+SAFARICOM_BUSINESS_SHORT_CODE = '174379'
+SAFARICOM_MPESA_PASSKEY = 'fb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919'
+SAFARICOM_CONSUMER_KEY = 'SnIVwrQBzAJZH9hIvXDAk0saTcfO9wjdnnOefNSH8T4TOpIA'
+SAFARICOM_CONSUMER_SECRET = 'UKiw63DBGHBn4YqUT7AbeqIySIjJnKPhGlfepm5lUZZbiBGNTMfZ7IruKwZiPeak'
+MPESA_CALLBACK_URL = 'https://cae7-102-213-93-44.ngrok-free.app/mpesa/callback/'
+SAFARICOM_STK_PUSH_URL = 'https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest'

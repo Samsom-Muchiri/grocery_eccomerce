@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
-from .models import Product, Order, User, Payment, CreditCardPayment, MobileMoneyPayment, Delivery, Cart, CartItem
+from .models import Product, Order, User, Payment, CreditCardPayment, MobileMoneyPayment, Delivery, Cart, CartItem, Category, Subcategory, Tip
 import json
 from django import forms
 from django.contrib.auth.decorators import login_required
@@ -19,7 +19,8 @@ from django.utils.decorators import method_decorator
 from .serializers import DeliverySerializer, CartSerializer
 from django.contrib.sessions.models import Session
 from rest_framework import generics
-
+from django.db.models import Sum, F, ExpressionWrapper, DateTimeField, Max
+import random
 
 def home(request):
     return render(request, 'home.html')
@@ -93,7 +94,7 @@ class ProductListView(APIView):
         Get a list of products.
         """
         products = Product.objects.all()
-        serializer = ProductSerializer(products, many=True)
+        serializer = ProductSerializer(products, many=True, context={'request': request})
         return Response(serializer.data)
 
 class OrderListView(APIView):
@@ -131,6 +132,7 @@ class CreateOrderView(APIView):
         type='object',
         properties={
             'products': openapi.Schema(type='array', items=openapi.Schema(type='integer')),
+            'tip_amount': openapi.Schema(type='number')
         }
     ), responses={200: openapi.Response(description="Order created successfully", schema=openapi.Schema(
         type='object',
@@ -144,19 +146,29 @@ class CreateOrderView(APIView):
         Create a new order.
         """
         try:
-            order_data = json.loads(request.body.decode('utf-8'))
-            products = order_data.get('products', [])
-            total_price = sum(Product.objects.filter(id__in=products).values_list('price', flat=True))
+            cart_id = request.data.get('cart_id')
+            cart = Cart.objects.get(id=cart_id)
+            total_price = sum(item.price for item in cart.items.all())
+
+            tip_amount = request.data.get('tip_amount', 0)
+            total_price += tip_amount
+
             order = Order.objects.create(
                 user=request.user,
                 total_price=total_price,
                 status='pending'
             )
-            order.products.add(*products)
+            order.products.add(*[item.product for item in cart.items.all()])
+            
+            tip = Tip.objects.create(amount=tip_amount)
+            order.tip = tip
+            
+            order.save()
+            
+            cart.delete()
             return Response({'success': True, 'order_id': order.id})
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
-
 
 class DeliveryListView(APIView):
     permission_classes = [IsAuthenticated]
@@ -265,9 +277,31 @@ class ProductListByCategory(generics.ListAPIView):
         """
         Get a list of products by category.
         """
-        category = self.kwargs['category']
-        return Product.objects.filter(category=category)
+        category_name = self.kwargs['category']
+        category = Category.objects.filter(name=category_name).first()
+        if category:
+            return Product.objects.filter(category=category)
+        else:
+            return Product.objects.none()
+        
+class ProductListBySubCategory(generics.ListAPIView):
+    serializer_class = ProductSerializer
 
+    @swagger_auto_schema(
+        operation_id='list_products_by_category',
+        responses={200: openapi.Response(description="List of products by subcategory", schema=ProductSerializer(many=True))}
+    )
+    def get_queryset(self):
+        """
+        Get a list of products by category.
+        """
+        subcategory_name = self.kwargs['subcategory']
+        subcategory = Subcategory.objects.filter(name=subcategory_name).first()
+        if subcategory:
+            return Product.objects.filter(subcategory=subcategory)
+        else:
+            return Product.objects.none()
+        
 
 class AddToCart(APIView):
     permission_classes = [IsAuthenticated]
@@ -308,7 +342,6 @@ class AddToCart(APIView):
             cart, created = Cart.objects.get_or_create(user=request.user)
             price = request.data.get('price', product.price)
 
-            # Add the product to the cart multiple times based on the quantity
             for _ in range(quantity):
                 cart_item, _ = CartItem.objects.get_or_create(cart=cart, product=product)
 
@@ -411,4 +444,124 @@ class CreateProductView(APIView):
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+class SalesActivityView(APIView):
+
+    @swagger_auto_schema(
+        operation_id='sales_activity',
+        responses={
+            200: openapi.Response(
+                description="Sales activity",
+                schema=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        'items_remaining': openapi.Schema(type=openapi.TYPE_INTEGER),
+                        'items_sold': openapi.Schema(type=openapi.TYPE_INTEGER)
+                    }
+                )
+            )
+        }
+    )
+    def get(self, request):
+        """
+        Get the number of items remaining and items sold.
+        """
+        items_remaining = Product.objects.aggregate(total=Sum('quantity'))['total']
+        items_sold = Order.objects.aggregate(total=Sum('products__quantity'))['total']
         
+        return Response({
+            'items_remaining': items_remaining,
+            'items_sold': items_sold
+        })
+
+class GoodsSoldOnOfferView(APIView):
+
+    @swagger_auto_schema(
+        operation_id='goods_sold_on_offer',
+        responses={
+            200: openapi.Response(
+                description="Goods sold on offer and marked price",
+                schema=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        'goods_sold_on_offer': openapi.Schema(type=openapi.TYPE_INTEGER),
+                        'goods_sold_on_marked_price': openapi.Schema(type=openapi.TYPE_INTEGER)
+                    }
+                )
+            )
+        }
+    )
+    def get(self, request):
+        """
+        Get the total number of goods sold on offer and goods sold on marked price.
+        """
+        goods_sold_on_offer = Order.objects.filter(products__offer__isnull=False).aggregate(total=Sum('products__quantity'))['total']
+        goods_sold_on_marked_price = Order.objects.filter(products__offer__isnull=True).aggregate(total=Sum('products__quantity'))['total']
+
+        return Response({
+            'goods_sold_on_offer': goods_sold_on_offer,
+            'goods_sold_on_marked_price': goods_sold_on_marked_price
+        })
+
+class TotalSalesAmountView(APIView):
+
+    @swagger_auto_schema(
+        operation_id='total_sales_amount',
+        responses={
+            200: openapi.Response(
+                description="Total sales amount",
+                schema=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        'total_sales_amount': openapi.Schema(type=openapi.TYPE_NUMBER)
+                    }
+                )
+            )
+        }
+    )
+    def get(self, request):
+        """
+        Get the total amount received from the total sales.
+        """
+        total_sales_amount = Payment.objects.filter(status='successful').aggregate(total=Sum('amount'))['total']
+        
+        return Response({
+            'total_sales_amount': total_sales_amount
+        })
+class TopPicksView(APIView):
+  """
+  API endpoint to retrieve a random selection of top 10 picks (products).
+  """
+  def get(self, request):
+    all_products = Product.objects.filter(availability=True)
+    top_picks = random.sample(list(all_products), 10)
+    serializer = ProductSerializer(top_picks, many=True)
+    return Response(serializer.data)
+
+class NewArrivalsView(generics.ListAPIView):
+    serializer_class = ProductSerializer
+
+    @swagger_auto_schema(
+        operation_id='list_new_arrivals',
+        responses={200: openapi.Response(description="List of new arrivals", schema=ProductSerializer(many=True))}
+    )
+    def get_queryset(self):
+        """
+        Get a list of the latest 6 products considering both creation and update timestamps.
+        """
+        return Product.objects.annotate(
+            most_recent_action=Max(F('created_at'), F('updated_at'))
+        ).order_by('-most_recent_action')[:6]
+
+class OrganicProductsView(generics.ListAPIView):
+    serializer_class = ProductSerializer
+
+    @swagger_auto_schema(
+        operation_id='list_organic_products',
+        responses={200: openapi.Response(description="List of organic products", schema=ProductSerializer(many=True))}
+    )
+    def get_queryset(self):
+        """
+        Get a list of products that are 100% organic.
+        """
+        return Product.objects.filter(organic=True)
