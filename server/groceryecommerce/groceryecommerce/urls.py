@@ -3,7 +3,7 @@ from django.urls import path
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
-from grocery.views import ProductListView, CreateOrderView, OrderListView, OrderDetailView, UserRegisterView, UserProfileView, PaymentView, home, DeliveryListView, DeliveryDetailView, ProductListByCategory, AddToCart, UpdateCart, CreateProductView, SalesActivityView, GoodsSoldOnOfferView, TotalSalesAmountView, ProductListBySubCategory, TopPicksView, NewArrivalsView, OrganicProductsView
+from grocery.views import ProductListView, CreateOrderView, OrderListView, OrderDetailView, UserRegisterView, UserProfileView, PaymentView, home, DeliveryListView, DeliveryDetailView, ProductListByCategory, AddToCart, UpdateCart, CreateProductView, SalesActivityView, GoodsSoldOnOfferView, TotalSalesAmountView, ProductListBySubCategory, TopPicksView, NewArrivalsView, OrganicProductsView, csrf_token_view
 from django.contrib.auth.views import LoginView
 from MpesaViews.mpesaexpress import initiate_mpesa_stk_push, mpesa_callback
 from MpesaViews.testview import send_prompt, send_prompt_res
@@ -51,6 +51,7 @@ urlpatterns = [
     path('top-picks/', TopPicksView.as_view()),
     path('products/new-arrivals/', NewArrivalsView.as_view(), name='new-arrivals'),
     path('products/organic/', OrganicProductsView.as_view(), name='organic-products'),
+    path('get-csrf-token/', csrf_token_view, name='get_csrf_token'),
     # path("mpesa/mpesapayments/", MobileMoneyPayment, name="mpesapayments")
 
 

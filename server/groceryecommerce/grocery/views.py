@@ -17,15 +17,51 @@ from rest_framework.decorators import api_view, permission_classes
 from django.contrib.auth.forms import UserCreationForm
 from django.utils.decorators import method_decorator
 from .serializers import DeliverySerializer, CartSerializer
-from django.contrib.sessions.models import Session
+from django.contrib.sessions.backends.db import SessionStore
 from rest_framework import generics
 from django.db.models import Sum, F, ExpressionWrapper, DateTimeField, Max
 import random
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication, BaseAuthentication
+from rest_framework.exceptions import AuthenticationFailed
+from rest_framework.permissions import AllowAny
+from django.contrib.auth import login, authenticate, logout
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
+from django.views.decorators.http import require_POST
+from django.middleware.csrf import get_token
 
+
+
+def csrf_token_view(request):
+    """
+    View to fetch CSRF token.
+    """
+    csrf_token = get_token(request)
+    
+    return JsonResponse({'csrf_token': csrf_token})
+
+class CsrfExemptSessionAuthentication(SessionAuthentication):
+    def enforce_csrf(self, request):
+        return
+
+class JsonSessionAuthentication(BaseAuthentication):
+    def authenticate(self, request):
+        session_key = request.data.get('session_id')
+        if session_key:
+            try:
+                session = SessionStore(session_key=session_key)
+                user_id = session['_auth_user_id']
+                user = User.objects.get(pk=user_id)
+                return (user, None)
+            except Exception as e:
+                raise AuthenticationFailed('Invalid session ID')
+        return None
+    
 def home(request):
     return render(request, 'home.html')
 
 class CustomUserCreationForm(UserCreationForm):
+    authentication_classes = [CsrfExemptSessionAuthentication, BasicAuthentication]
     class Meta(UserCreationForm.Meta):
         model = User
 
@@ -40,23 +76,56 @@ class CustomUserCreationForm(UserCreationForm):
 
 # View to handle user registration
 class UserRegisterView(CreateView):
+    authentication_classes = [CsrfExemptSessionAuthentication, BasicAuthentication]
     form_class = CustomUserCreationForm
-    # form_class = UserCreationForm
     template_name = 'registration/register.html'
     success_url = '/login/'
 
     @swagger_auto_schema(
         operation_id='user_register',
-        responses={200: openapi.Response(description="User registered successfully")}
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=['username', 'password1', 'password2'],
+            properties={
+                'username': openapi.Schema(type=openapi.TYPE_STRING),
+                'password1': openapi.Schema(type=openapi.TYPE_STRING),
+                'password2': openapi.Schema(type=openapi.TYPE_STRING),
+            },
+        ),
+        responses={
+            201: openapi.Response(description="User registered successfully"),
+            400: "Bad Request: Invalid data provided"
+        }
     )
     def post(self, request, *args, **kwargs):
         """
         Register a new user.
         """
-        return super().post(request, *args, **kwargs)
-    
+        json_data = json.loads(request.body)
+        form = self.form_class(json_data)
+        if form.is_valid():
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
 
+    def form_valid(self, form):
+        """
+        If the form is valid, save the form instance.
+        """
+        self.object = form.save()
+        return JsonResponse({'message': 'User registered successfully'}, status=201)
+
+    def form_invalid(self, form):
+        """
+        If the form is invalid, return a JsonResponse with form errors and a status code of 400.
+        """
+        errors = form.errors.as_json()
+        return JsonResponse({'errors': errors}, status=400)
+      
 class UserProfileView(APIView):
+    authentication_classes = [CsrfExemptSessionAuthentication, BasicAuthentication]
+    permission_classes = [AllowAny]
+    
     @method_decorator(login_required)
     @swagger_auto_schema(
         operation_id='user_profile',
@@ -79,6 +148,9 @@ class UserProfileView(APIView):
             return JsonResponse({'error': 'Invalid data'}, status=400)
 
 class PaymentView(APIView):
+    authentication_classes = [CsrfExemptSessionAuthentication, BasicAuthentication]
+    permission_classes = [IsAuthenticated]
+
     def post(self, request):
         form = PaymentForm(request.POST)
         if form.is_valid():
@@ -87,7 +159,45 @@ class PaymentView(APIView):
         else:
             return JsonResponse({'error': 'Invalid data'}, status=400)
 
+class UserLoginView(APIView):
+    authentication_classes = [CsrfExemptSessionAuthentication, JsonSessionAuthentication]
+    permission_classes = [AllowAny]
+
+    @swagger_auto_schema(
+        operation_id='user_login',
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'username': openapi.Schema(type=openapi.TYPE_STRING),
+                'password': openapi.Schema(type=openapi.TYPE_STRING)
+            }
+        ),
+        responses={200: openapi.Response(description="Login successful"),
+                   400: openapi.Response(description="Invalid credentials")}
+    )
+    def post(self, request):
+        username = request.data.get('username')
+        password = request.data.get('password')
+        user = authenticate(request, username=username, password=password)
+        
+        if user is not None:
+            login(request, user)
+            session_key = request.session.session_key
+            user_data = {
+                'id': user.id,
+                'username': user.username,
+                'email': user.email,
+                'first_name': user.first_name,
+                'last_name': user.last_name
+            }
+
+            return Response({'message': 'Login successful', 'session_id': session_key, 'user': user_data})
+        else:
+            return Response({'error': 'Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
+        
 class ProductListView(APIView):
+    authentication_classes = []
+    
     @swagger_auto_schema(operation_id='list_products', responses={200: openapi.Response(description="List of products", schema=ProductSerializer(many=True))})
     def get(self, request):
         """
@@ -98,6 +208,7 @@ class ProductListView(APIView):
         return Response(serializer.data)
 
 class OrderListView(APIView):
+    authentication_classes = [CsrfExemptSessionAuthentication, BasicAuthentication]
     permission_classes = [IsAuthenticated]
 
     @swagger_auto_schema(operation_id='list_orders', responses={200: openapi.Response(description="List of orders", schema=OrderSerializer(many=True))})
@@ -110,6 +221,10 @@ class OrderListView(APIView):
         return Response(serializer.data)
 
 class OrderDetailView(APIView):
+    authentication_classes = [CsrfExemptSessionAuthentication, BasicAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    
     @swagger_auto_schema(
         operation_id='view_order',
         manual_parameters=[openapi.Parameter('order_id', openapi.IN_PATH, type=openapi.TYPE_INTEGER, description='Order ID')],
@@ -128,6 +243,10 @@ class OrderDetailView(APIView):
             return Response({'error': 'Order not found'}, status=status.HTTP_404_NOT_FOUND)
         
 class CreateOrderView(APIView):
+    authentication_classes = [CsrfExemptSessionAuthentication, BasicAuthentication]
+    permission_classes = [IsAuthenticated]
+
+
     @swagger_auto_schema(operation_id='create_order', request_body=openapi.Schema(
         type='object',
         properties={
@@ -171,6 +290,7 @@ class CreateOrderView(APIView):
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 class DeliveryListView(APIView):
+    authentication_classes = [CsrfExemptSessionAuthentication, BasicAuthentication]
     permission_classes = [IsAuthenticated]
 
     @swagger_auto_schema(
@@ -240,6 +360,9 @@ class DeliveryListView(APIView):
             return Response({'error': 'Delivery not found'}, status=status.HTTP_404_NOT_FOUND)
 
 class DeliveryDetailView(APIView):
+    authentication_classes = [CsrfExemptSessionAuthentication, BasicAuthentication]
+    permission_classes = [IsAuthenticated]
+    
     @swagger_auto_schema(
         operation_id='get_delivery_details',
         manual_parameters=[
@@ -267,6 +390,8 @@ class DeliveryDetailView(APIView):
             return Response({'error': 'Delivery not found'}, status=status.HTTP_404_NOT_FOUND)
 
 class ProductListByCategory(generics.ListAPIView):
+    authentication_classes = []
+    
     serializer_class = ProductSerializer
 
     @swagger_auto_schema(
@@ -285,6 +410,7 @@ class ProductListByCategory(generics.ListAPIView):
             return Product.objects.none()
         
 class ProductListBySubCategory(generics.ListAPIView):
+    authentication_classes = []
     serializer_class = ProductSerializer
 
     @swagger_auto_schema(
@@ -304,6 +430,7 @@ class ProductListBySubCategory(generics.ListAPIView):
         
 
 class AddToCart(APIView):
+    authentication_classes = [CsrfExemptSessionAuthentication, BasicAuthentication]
     permission_classes = [IsAuthenticated]
 
     @swagger_auto_schema(
@@ -361,6 +488,7 @@ class AddToCart(APIView):
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 class UpdateCart(APIView):
+    authentication_classes = [CsrfExemptSessionAuthentication, BasicAuthentication]
     permission_classes = [IsAuthenticated]
 
     @swagger_auto_schema(
@@ -425,6 +553,9 @@ class UpdateCart(APIView):
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
         
 class CreateProductView(APIView):
+    authentication_classes = [CsrfExemptSessionAuthentication, BasicAuthentication]
+    permission_classes = [IsAuthenticated]
+
     @swagger_auto_schema(
         operation_id='create_product',
         request_body=ProductSerializer,
@@ -446,6 +577,8 @@ class CreateProductView(APIView):
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 class SalesActivityView(APIView):
+    authentication_classes = [CsrfExemptSessionAuthentication, BasicAuthentication]
+    permission_classes = [IsAuthenticated]
 
     @swagger_auto_schema(
         operation_id='sales_activity',
@@ -475,6 +608,8 @@ class SalesActivityView(APIView):
         })
 
 class GoodsSoldOnOfferView(APIView):
+    authentication_classes = [CsrfExemptSessionAuthentication, BasicAuthentication]
+    permission_classes = [IsAuthenticated]
 
     @swagger_auto_schema(
         operation_id='goods_sold_on_offer',
@@ -504,6 +639,8 @@ class GoodsSoldOnOfferView(APIView):
         })
 
 class TotalSalesAmountView(APIView):
+    authentication_classes = [CsrfExemptSessionAuthentication, BasicAuthentication]
+    permission_classes = [IsAuthenticated]
 
     @swagger_auto_schema(
         operation_id='total_sales_amount',
@@ -529,16 +666,20 @@ class TotalSalesAmountView(APIView):
             'total_sales_amount': total_sales_amount
         })
 class TopPicksView(APIView):
-  """
-  API endpoint to retrieve a random selection of top 10 picks (products).
-  """
-  def get(self, request):
-    all_products = Product.objects.filter(availability=True)
-    top_picks = random.sample(list(all_products), 10)
-    serializer = ProductSerializer(top_picks, many=True)
-    return Response(serializer.data)
+    authentication_classes = []
+    
+    """
+    API endpoint to retrieve a random selection of top 10 picks (products).
+    """
+    def get(self, request):
+        all_products = Product.objects.filter(availability=True)
+        top_picks = random.sample(list(all_products), 10)
+        serializer = ProductSerializer(top_picks, many=True)
+        return Response(serializer.data)
 
 class NewArrivalsView(generics.ListAPIView):
+
+    authentication_classes = []
     serializer_class = ProductSerializer
 
     @swagger_auto_schema(
@@ -554,6 +695,8 @@ class NewArrivalsView(generics.ListAPIView):
         ).order_by('-most_recent_action')[:6]
 
 class OrganicProductsView(generics.ListAPIView):
+    authentication_classes = []
+    
     serializer_class = ProductSerializer
 
     @swagger_auto_schema(
