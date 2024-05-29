@@ -52,11 +52,13 @@ MIDDLEWARE = [
 CSRF_COOKIE_SECURE = False
 CSRF_COOKIE_HTTPONLY = False 
 
-CSRF_TRUSTED_ORIGINS = []
+CSRF_TRUSTED_ORIGINS = ['http://localhost:8000/', 'https://grocery-eccomerce.vercel.app/', 'https://grocery-eccomerce.onrender.com']
 
 CSRF_COOKIE_SAMESITE = None
 
 CORS_ALLOW_ALL_ORIGINS = True
+
+CSRF_COOKIE_AGE = 60 * 60 * 24 * 7
 
 
 # CORS_ALLOWED_ORIGINS = [

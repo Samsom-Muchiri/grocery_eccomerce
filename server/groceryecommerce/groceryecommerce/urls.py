@@ -30,7 +30,7 @@ urlpatterns = [
     path('orders_creation/', CreateOrderView.as_view(), name='create_order'),
     path('orders/', OrderListView.as_view(), name='list_orders'),
     path('orders/<int:order_id>/', OrderDetailView.as_view(), name='view_order'),
-    path('login/', LoginView.as_view(template_name='registration/login.html'), name='user_login'),
+    path('userlogin/', LoginView.as_view(template_name='registration/login.html'), name='user_login'),
     path('register/', UserRegisterView.as_view(), name='user_register'),
     path('profile/', UserProfileView.as_view(), name='user_profile'),
     path('payment/', PaymentView.as_view(), name='payment'),

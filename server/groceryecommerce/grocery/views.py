@@ -1,10 +1,10 @@
-from django.shortcuts import render, get_object_or_404
-from django.http import JsonResponse
+from django.shortcuts import render, get_object_or_404, redirect
+from django.http import JsonResponse, HttpResponse
 from .models import Product, Order, User, Payment, CreditCardPayment, MobileMoneyPayment, Delivery, Cart, CartItem, Category, Subcategory, Tip
 import json
 from django import forms
 from django.contrib.auth.decorators import login_required
-from django.views.generic.edit import CreateView
+from django.views.generic.edit import CreateView, FormView
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -29,7 +29,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.views.decorators.http import require_POST
 from django.middleware.csrf import get_token
-
+from django.urls import reverse_lazy
 
 
 def csrf_token_view(request):
@@ -39,6 +39,12 @@ def csrf_token_view(request):
     csrf_token = get_token(request)
     
     return JsonResponse({'csrf_token': csrf_token})
+
+class LoginForm(forms.Form):
+    username = forms.CharField(max_length=150)
+    password = forms.CharField(widget=forms.PasswordInput)
+
+
 
 class CsrfExemptSessionAuthentication(SessionAuthentication):
     def enforce_csrf(self, request):
@@ -74,7 +80,7 @@ class CustomUserCreationForm(UserCreationForm):
             return username
         raise forms.ValidationError('This username is already taken. Please choose a different one.')
 
-# View to handle user registration
+
 class UserRegisterView(CreateView):
     authentication_classes = [CsrfExemptSessionAuthentication, BasicAuthentication]
     form_class = CustomUserCreationForm
@@ -159,41 +165,75 @@ class PaymentView(APIView):
         else:
             return JsonResponse({'error': 'Invalid data'}, status=400)
 
-class UserLoginView(APIView):
-    authentication_classes = [CsrfExemptSessionAuthentication, JsonSessionAuthentication]
-    permission_classes = [AllowAny]
+# class UserLoginView(APIView):
+#     permission_classes = [AllowAny]
+#     template_name = 'registration/login.html'
 
-    @swagger_auto_schema(
-        operation_id='user_login',
-        request_body=openapi.Schema(
-            type=openapi.TYPE_OBJECT,
-            properties={
-                'username': openapi.Schema(type=openapi.TYPE_STRING),
-                'password': openapi.Schema(type=openapi.TYPE_STRING)
-            }
-        ),
-        responses={200: openapi.Response(description="Login successful"),
-                   400: openapi.Response(description="Invalid credentials")}
-    )
-    def post(self, request):
-        username = request.data.get('username')
-        password = request.data.get('password')
-        user = authenticate(request, username=username, password=password)
-        
+#     @swagger_auto_schema(
+#         operation_id='user_login',
+#         request_body=openapi.Schema(
+#             type=openapi.TYPE_OBJECT,
+#             properties={
+#                 'username': openapi.Schema(type=openapi.TYPE_STRING),
+#                 'password': openapi.Schema(type=openapi.TYPE_STRING)
+#             }
+#         ),
+#         responses={200: openapi.Response(description="Login successful"),
+#                    400: openapi.Response(description="Invalid credentials")}
+#     )
+#     def get(self, request):
+#         return render(request, 'login.html')
+
+#     @method_decorator(csrf_exempt)
+#     def dispatch(self, *args, **kwargs):
+#         return super().dispatch(*args, **kwargs)
+
+#     def post(self, request):
+#         if request.content_type == 'application/json':
+#             username = request.data.get('username')
+#             password = request.data.get('password')
+#         else:
+#             username = request.POST.get('username')
+#             password = request.POST.get('password')
+
+#         user = authenticate(request, username=username, password=password)
+
+#         if user is not None:
+#             login(request, user)
+#             session_key = request.session.session_key
+#             user_data = {
+#                 'id': user.id,
+#                 'username': user.username,
+#                 'email': user.email,
+#                 'first_name': user.first_name,
+#                 'last_name': user.last_name
+#             }
+#             if request.content_type == 'application/json':
+#                 return JsonResponse({'message': 'Login successful', 'session_id': session_key, 'user': user_data})
+#             else:
+#                 return redirect('home')
+#         else:
+#             if request.content_type == 'application/json':
+#                 return JsonResponse({'error': 'Invalid credentials'}, status=400)
+#             else:
+#                 return HttpResponse('Invalid login credentials')
+
+@method_decorator(csrf_exempt, name='dispatch')
+class UserLoginView(FormView):
+    template_name = 'registration/login.html'
+    form_class = LoginForm
+    success_url = reverse_lazy('home')
+
+    def form_valid(self, form):
+        username = form.cleaned_data.get('username')
+        password = form.cleaned_data.get('password')
+        user = authenticate(self.request, username=username, password=password)
+
         if user is not None:
-            login(request, user)
-            session_key = request.session.session_key
-            user_data = {
-                'id': user.id,
-                'username': user.username,
-                'email': user.email,
-                'first_name': user.first_name,
-                'last_name': user.last_name
-            }
-
-            return Response({'message': 'Login successful', 'session_id': session_key, 'user': user_data})
+            login(self.request, user)
+            return super().form_valid(form)
         else:
-            return Response({'error': 'Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
+            return self.form_invalid(form)
         
 class ProductListView(APIView):
     authentication_classes = []
