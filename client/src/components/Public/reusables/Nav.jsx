@@ -34,7 +34,11 @@ function Nav() {
 
   const registerUser = useMutation(
     async (data) => {
-      const response = await axios.post(`${base_url}/register/`, data);
+      const response = await axios.post(`${base_url}/register/`, data, {
+        headers: {
+          "X-CSRFToken": vl.csrfToken,
+        },
+      });
       return response.data;
     },
     {
@@ -51,7 +55,11 @@ function Nav() {
 
   const loginUser = useMutation(
     async (data) => {
-      const response = await axios.post(`${base_url}/login/`, data);
+      const response = await axios.post(`${base_url}/login/`, data, {
+        headers: {
+          "X-CSRFToken": vl.csrfToken,
+        },
+      });
       return response.data;
     },
     {

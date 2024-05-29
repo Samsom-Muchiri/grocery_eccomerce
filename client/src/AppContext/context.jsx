@@ -14,7 +14,10 @@ function Context({ children }) {
   const [path, setPath] = useState([
     { title: "Dashboard", path: "/admin/dashboard" },
   ]);
+  const [csrfToken, setCsrfToken] = useState(null);
   const functions = {
+    csrfToken,
+    setCsrfToken,
     path,
     setPath,
     formatCurrencyKE,
