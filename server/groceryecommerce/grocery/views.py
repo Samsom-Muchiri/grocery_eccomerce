@@ -160,7 +160,7 @@ class PaymentView(APIView):
             return JsonResponse({'error': 'Invalid data'}, status=400)
 
 class UserLoginView(APIView):
-    # authentication_classes = [CsrfExemptSessionAuthentication, JsonSessionAuthentication]
+    authentication_classes = [CsrfExemptSessionAuthentication, JsonSessionAuthentication]
     permission_classes = [AllowAny]
 
     @swagger_auto_schema(
