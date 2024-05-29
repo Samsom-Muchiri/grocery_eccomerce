@@ -1,0 +1,50 @@
+.pay-method-logo {
+  width: 10rem;
+  height: 5rem;
+}
+.pay-method-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.phone-form {
+  border: solid 1px black;
+  padding: 0.5rem;
+}
+.phone-form h5 {
+  margin: 0;
+}
+.phone-form-input-cnt {
+  display: flex;
+  align-items: center;
+  box-shadow: inset 0px 0px 3px rgba(0, 0, 0, 0.172);
+  padding: 5px;
+}
+.phone-form-input-cnt input {
+  border: none;
+  outline: none;
+  background-color: transparent;
+  width: 80%;
+  font-size: 1rem;
+}
+.pfic-icon {
+  display: flex;
+  align-items: center;
+}
+.phone-form button {
+  margin-top: 0.5rem;
+  background-color: brown;
+  color: white;
+  font-size: 1rem;
+  cursor: pointer;
+}
+.phone-form button:active {
+  background-color: rgb(104, 28, 28);
+}
+.order-detail {
+  list-style: none;
+}
+.order-detail li h1 {
+  font-size: 1.3rem;
+  border-top: 1px solid gray;
+}

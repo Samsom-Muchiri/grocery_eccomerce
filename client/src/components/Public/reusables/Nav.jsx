@@ -10,6 +10,7 @@ import { useMutation } from "react-query";
 import axios from "axios";
 import Loader from "../../Reusables/Loader";
 import { base_url } from "../../../base_url";
+import Footer from "./Footer";
 
 function Nav() {
   const vl = useContext(CONT);
@@ -301,6 +302,7 @@ function Nav() {
       </nav>
       <Outlet />
       <Cart />
+      <Footer />
     </>
   );
 }

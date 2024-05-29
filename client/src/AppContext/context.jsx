@@ -10,6 +10,7 @@ function Context({ children }) {
   const [cartTotal, setCartTotal] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
   const [userIsLoged, setUserIsLoged] = useState(false);
+  const [orderDetails, setOrderDetails] = useState(null);
   const [path, setPath] = useState([
     { title: "Dashboard", path: "/admin/dashboard" },
   ]);
@@ -21,6 +22,8 @@ function Context({ children }) {
     setCartOpen,
     cartData,
     setCartData,
+    orderDetails,
+    setOrderDetails,
     cartTotal,
     menuOpen,
     setMenuOpen,

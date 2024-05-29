@@ -18,6 +18,7 @@ import Orders from "./Public/Account components/Orders";
 import SavedItems from "./Public/Account components/SavedItems";
 import Vouchers from "./Public/Account components/Vouchers";
 import Timetable from "./Admin/Timetable";
+import Payment from "./Public/Payment";
 
 function Main() {
   const routes = createBrowserRouter(
@@ -41,6 +42,7 @@ function Main() {
           </Route>
           <Route path="/product/:view" element={<ProductView />} />
           <Route path="chekout" element={<CheckoutPage />} />
+          <Route path="chekout/payment" element={<Payment />} />
         </Route>
       </Route>
     )

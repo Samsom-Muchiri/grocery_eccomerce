@@ -10,7 +10,7 @@ function ProductView() {
   const { view } = useParams();
   const productId = view.split("_")[1];
   const product = productData.filter((product) => product.id === productId)[0];
-  const { id, name, image, price, discount, description } = product;
+  const { id, name, image_url, price, discount, description } = product;
 
   const ProductSection = ({ products, title }) => {
     return (
@@ -23,13 +23,13 @@ function ProductView() {
           <div className="psr-cnt">
             <div className="psr-cnt-w">
               {products.map((product, i) => {
-                const { name, id, price, discount, image } = product;
+                const { name, id, price, discount, image_url } = product;
 
                 return (
                   <Fragment key={product.name + i}>
                     <div className="product-card">
                       <Link to={`/product/${product.name}_${product.id}`}>
-                        <img src={image} alt="" />
+                        <img src={image_url} alt="" />
                       </Link>
                       <div className="product-detail">
                         <span className="product-name">{name}</span>
@@ -130,7 +130,7 @@ function ProductView() {
     <div>
       <section className="p-v-detail">
         <div className="pv-image">
-          <img src={image} alt="" />
+          <img src={image_url} alt="" />
         </div>
         <div className="pv-info">
           <div className="pv-name">{name}</div>

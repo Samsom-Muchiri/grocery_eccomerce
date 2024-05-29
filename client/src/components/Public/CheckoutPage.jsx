@@ -1,13 +1,28 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useRef, useState } from "react";
 import "../../styles/checkoutpage.css";
 import { CONT } from "../../AppContext/context";
+import { useNavigate } from "react-router";
 
 function CheckoutPage() {
   const vl = useContext(CONT);
+  const navTo = useNavigate(null);
   const [tip, setTip] = useState({ type: "none", value: "0" });
+  const payButtonRef = useRef(null);
   return (
     <div className="chakout-cnt">
-      <form className="checkout-info">
+      <form
+        className="checkout-info"
+        onSubmit={(e) => {
+          e.preventDefault();
+          const formData = new FormData(e.target);
+          const data = {};
+          for (const [key, value] of formData.entries()) {
+            data[key] = value;
+          }
+          vl.setOrderDetails({ ...data, total: tip.value + vl.cartTotal });
+          navTo("/chekout/payment");
+        }}
+      >
         <h2>Contact</h2>
         <small>Enter contact that will use to contact you</small>
 
@@ -21,7 +36,7 @@ function CheckoutPage() {
         <h2>Delivery</h2>
         <div className="delivery-fields">
           <small>Country</small>
-          <select name="country">
+          <select name="country" required>
             <option value="">Choose</option>
             <option value="kenya">Kenya</option>
             <option value="tanzania">Tanzania</option>
@@ -30,46 +45,46 @@ function CheckoutPage() {
           </select>
           <div className="df-row">
             <div className="ci-field">
-              <input required type="text" />
+              <input required name="first_name" type="text" />
 
               <span class="bar"></span>
               <label>First name</label>
             </div>
             <div className="ci-field">
-              <input required type="text" />
+              <input required name="second_name" type="text" />
 
               <span class="bar"></span>
               <label>Second name</label>
             </div>
           </div>
           <div className="ci-field">
-            <input required type="text" />
+            <input required name="address" type="text" />
 
             <span class="bar"></span>
             <label>Address</label>
           </div>
           <div className="df-row">
             <div className="ci-field">
-              <input required type="text" />
+              <input required name="city" type="text" />
 
               <span class="bar"></span>
               <label>City</label>
             </div>
             <div className="ci-field">
-              <input required type="text" />
+              <input required name="postcode" type="text" />
 
               <span class="bar"></span>
               <label>Postal code</label>
             </div>
           </div>
           <div className="ci-field">
-            <input required type="text" />
+            <input required name="phone_2" type="text" />
 
             <span class="bar"></span>
             <label>Phone number for updates</label>
           </div>
           <div className="save-info">
-            <input required type="checkbox" /> Save this info for next time
+            <input type="checkbox" /> Save this info for next time
           </div>
         </div>
         <h2>Payment</h2>
@@ -78,7 +93,7 @@ function CheckoutPage() {
           <li>
             <div>
               {" "}
-              <input type="radio" checked /> <span>Mpesa</span>{" "}
+              <input type="radio" checked readOnly /> <span>Mpesa</span>{" "}
             </div>{" "}
             <img
               src="https://www.safaricom.co.ke/images/Lipanampesa.png"
@@ -138,7 +153,7 @@ function CheckoutPage() {
           </div>
           <small>Thank you, we appriciate.</small>
         </div>
-        <button className="pay-now pbtn2" id="pay-now">
+        <button className="pay-now pbtn2" ref={payButtonRef}>
           Pay now
         </button>
       </form>
@@ -146,11 +161,11 @@ function CheckoutPage() {
         <h2>Order summery</h2>
         <div className="ci-cart-item">
           {vl.cartData.map((item, i) => {
-            const { name, image, price, quantity, id } = item;
+            const { name, image_url, price, quantity, id } = item;
             return (
               <div className="cart-item" key={name + price + i}>
-                <div className="ci-image">
-                  <img src={image} alt="" />
+                <div className="ci-image_url">
+                  <img src={image_url} alt="" />
                 </div>
                 <div className="ci-inf">
                   <span>{name}</span>
@@ -231,7 +246,16 @@ function CheckoutPage() {
           </li>
         </ul>
         <label htmlFor="pay-now">
-          <button className="pay-now pbtn1">Pay now</button>
+          <button
+            className="pay-now pbtn1"
+            onClick={() => {
+              if (payButtonRef.current) {
+                payButtonRef.current.click();
+              }
+            }}
+          >
+            Pay now
+          </button>
         </label>
       </div>
     </div>

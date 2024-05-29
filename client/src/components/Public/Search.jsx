@@ -4,6 +4,9 @@ import { productData } from "../../fakeData";
 import { CONT } from "../../AppContext/context";
 import _debounce from "lodash/debounce";
 import { Link } from "react-router-dom";
+import { useQuery } from "react-query";
+import { base_url } from "../../base_url";
+import axios from "axios";
 
 function Search({ closeSearch }) {
   const vl = useContext(CONT);
@@ -19,6 +22,23 @@ function Search({ closeSearch }) {
   const debouncedSetSearchQuery = _debounce((value) => {
     setSearchQuery(value);
   }, 300);
+
+  const products = useQuery(
+    "products",
+    async () => {
+      const response = await axios.get(`${base_url}/products/`, {
+        headers: {
+          Authorization: `Bearer ${vl.token}`,
+        },
+      });
+      return response.data;
+    },
+    {
+      refetchInterval: 300000, // Refetch data every 10 seconds (in milliseconds)
+      refetchIntervalInBackground: true, // Allow refetching even when the component is not visible
+    }
+  );
+
   const productSuggestion = productData.slice(0, 6);
   const popularSearch = productData.slice(5, 10);
   const searchInputRef = useRef(null);
@@ -87,11 +107,11 @@ function Search({ closeSearch }) {
                 {productSuggestion.map((product) => (
                   <Link
                     to={`/product/${product.name}_${product.id}`}
-                    key={product.image + product.id}
+                    key={product.image_url + product.id}
                   >
                     <div className="prs">
                       <div className="prs-image">
-                        <img src={product.image} alt="" />
+                        <img src={product.image_url} alt="" />
                       </div>
                       <div className="prs-info">
                         <div className="prs-name">{product.name}</div>
@@ -114,7 +134,7 @@ function Search({ closeSearch }) {
                   >
                     <div className="prs">
                       <div className="prs-image">
-                        <img src={product.image} alt="" />
+                        <img src={product.image_url} alt="" />
                       </div>
                       <div className="prs-info">
                         <div className="prs-name">{product.name}</div>
@@ -166,7 +186,7 @@ function Search({ closeSearch }) {
                 >
                   <li>
                     <div className="s-r-img">
-                      <img src={result.image} alt="" />
+                      <img src={result.image_url} alt="" />
                     </div>
                     <div className="s-r-info">
                       <div className="r-s-name">{result.name}</div>

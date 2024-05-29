@@ -85,7 +85,7 @@ function LandingPage() {
   const productSections = [
     {
       title: "Top pics for you",
-      data: productData,
+      data: products.data,
     },
     {
       title: "New arivals",
@@ -128,7 +128,7 @@ function LandingPage() {
     target[i] = { open: !fqa[i].open, height: "3rem" };
     setFqa(target);
   };
-  const ProductSection = ({ products, title }) => {
+  const ProductSection = ({ products = [], title }) => {
     return (
       <section className="product-section">
         <h2>{title}</h2>
@@ -139,13 +139,13 @@ function LandingPage() {
           <div className="psr-cnt">
             <div className="psr-cnt-w">
               {products.map((product, i) => {
-                const { name, id, price, discount, image } = product;
+                const { name, id, price, discount, image_url } = product;
 
                 return (
                   <Fragment key={product.name + i}>
                     <div className="product-card">
                       <Link to={`/product/${product.name}_${product.id}`}>
-                        <img src={image} alt="" />
+                        <img src={image_url} alt="" />
                       </Link>
                       <div className="product-detail">
                         <span className="product-name">{name}</span>

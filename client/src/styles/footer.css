@@ -1,0 +1,39 @@
+:root {
+  --color1: #f8f8f8;
+  --color2: #baf8ba;
+  --color3: #7cf87c;
+  --color4: #3ef83e;
+  --color5: #00f800;
+  --lightFont: #333333;
+  --overlay: #0000002f;
+}
+footer {
+  background-color: rgb(3, 38, 3);
+  color: white;
+  padding: 1rem;
+}
+.f-c-info {
+  list-style: none;
+  display: flex;
+  justify-content: space-evenly;
+  flex-wrap: wrap;
+  padding-bottom: 2rem;
+  border-bottom: solid 1px gray;
+}
+.f-c-info li {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+.f-c-info li h1 {
+  margin: 0%;
+  font-size: 1.3rem;
+}
+.f-c-info li p {
+  margin: 0%;
+}
+.f-c-info .material-symbols-outlined {
+  font-size: 2rem;
+  color: var(--color5);
+}
