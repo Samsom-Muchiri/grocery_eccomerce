@@ -179,3 +179,6 @@ SAFARICOM_CONSUMER_KEY = 'SnIVwrQBzAJZH9hIvXDAk0saTcfO9wjdnnOefNSH8T4TOpIA'
 SAFARICOM_CONSUMER_SECRET = 'UKiw63DBGHBn4YqUT7AbeqIySIjJnKPhGlfepm5lUZZbiBGNTMfZ7IruKwZiPeak'
 MPESA_CALLBACK_URL = 'https://cae7-102-213-93-44.ngrok-free.app/mpesa/callback/'
 SAFARICOM_STK_PUSH_URL = 'https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest'
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, '/groceryecommerce/product_images')

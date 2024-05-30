@@ -135,3 +135,15 @@ class CartItem(models.Model):
     price = models.FloatField(null=True)
     offer = models.FloatField(null=True)
     quantity = models.IntegerField(null=False, default=1)
+
+class SavedItem(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='saved_items')
+    product = models.ForeignKey('Product', on_delete=models.CASCADE, related_name='saved_by')
+    saved_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'product')
+
+    def __str__(self):
+        return f"{self.user.username} saved {self.product.name}"
+

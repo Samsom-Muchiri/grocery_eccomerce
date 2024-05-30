@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse, HttpResponse
-from .models import Product, Order, User, Payment, CreditCardPayment, MobileMoneyPayment, Delivery, Cart, CartItem, Category, Subcategory, Tip
+from .models import Product, Order, User, Payment, CreditCardPayment, MobileMoneyPayment, Delivery, Cart, CartItem, Category, Subcategory, Tip, SavedItem
 import json
 from django import forms
 from django.contrib.auth.decorators import login_required
@@ -9,7 +9,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from .forms import UserProfileForm, PaymentForm
-from .serializers import ProductSerializer, OrderSerializer, CartItemSerializer, CartSerializer
+from .serializers import ProductSerializer, OrderSerializer, CartItemSerializer, CartSerializer, SavedItemSerializer
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from rest_framework.permissions import IsAuthenticated
@@ -246,6 +246,19 @@ class ProductListView(APIView):
         products = Product.objects.all()
         serializer = ProductSerializer(products, many=True, context={'request': request})
         return Response(serializer.data)
+class SavedItemListCreateView(generics.ListCreateAPIView):
+    serializer_class = SavedItemSerializer
+    authentication_classes = [CsrfExemptSessionAuthentication, BasicAuthentication]
+    permission_classes = [IsAuthenticated]
+
+
+    @swagger_auto_schema(operation_id='list_saved_products', responses={200: openapi.Response(description="List of saved products", schema=SavedItemSerializer(many=True))})
+
+    def get_queryset(self):
+        return SavedItem.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
 
 class OrderListView(APIView):
     authentication_classes = [CsrfExemptSessionAuthentication, BasicAuthentication]
@@ -260,6 +273,47 @@ class OrderListView(APIView):
         serializer = OrderSerializer(orders, many=True)
         return Response(serializer.data)
 
+class SavedItemListCreateView(generics.ListCreateAPIView):
+    serializer_class = SavedItemSerializer
+    authentication_classes = [CsrfExemptSessionAuthentication, BasicAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    @swagger_auto_schema(
+        operation_id='list_saved_products',
+        responses={200: openapi.Response(description="List of saved products", schema=SavedItemSerializer(many=True))}
+    )
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
+    def get_queryset(self):
+        return SavedItem.objects.filter(user=self.request.user)
+
+    @swagger_auto_schema(
+        operation_id='create_saved_product',
+        request_body=SavedItemSerializer,
+        responses={201: openapi.Response(description="Saved product created", schema=SavedItemSerializer)}
+    )
+    def post(self, request, *args, **kwargs):
+        return super().post(request, *args, **kwargs)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+class SavedItemDetailView(generics.DestroyAPIView):
+    serializer_class = SavedItemSerializer
+    authentication_classes = [CsrfExemptSessionAuthentication, BasicAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return SavedItem.objects.filter(user=self.request.user)
+
+    @swagger_auto_schema(
+        operation_id='delete_saved_product',
+        responses={204: openapi.Response(description="Saved product deleted")}
+    )
+    def delete(self, request, *args, **kwargs):
+        return super().delete(request, *args, **kwargs)
+    
 class OrderDetailView(APIView):
     authentication_classes = [CsrfExemptSessionAuthentication, BasicAuthentication]
     permission_classes = [IsAuthenticated]

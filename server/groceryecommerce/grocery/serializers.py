@@ -1,6 +1,14 @@
 from rest_framework import serializers
-from .models import Product, Order, Delivery, Cart, MpesaResponseBody, Payment, MobileMoneyPayment, Category, Tip, Subcategory
+from .models import Product, Order, Delivery, Cart, MpesaResponseBody, Payment, MobileMoneyPayment, Category, Tip, Subcategory, SavedItem
 
+
+class SavedItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SavedItem
+        fields = ['id', 'user', 'product', 'saved_at']
+        read_only_fields = ['user', 'saved_at']
+
+        
 
 # class SendSTKPushSerializer(serializers.Serializer):
 #     phone_payment_number = serializers.CharField()
