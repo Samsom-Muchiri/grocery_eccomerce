@@ -43,7 +43,7 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    # 'django.middleware.csrf.CsrfViewMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -180,5 +180,5 @@ SAFARICOM_CONSUMER_SECRET = 'UKiw63DBGHBn4YqUT7AbeqIySIjJnKPhGlfepm5lUZZbiBGNTMf
 MPESA_CALLBACK_URL = 'https://cae7-102-213-93-44.ngrok-free.app/mpesa/callback/'
 SAFARICOM_STK_PUSH_URL = 'https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest'
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, '/groceryecommerce/product_images')
+MEDIA_URL = ''
+MEDIA_ROOT = ''

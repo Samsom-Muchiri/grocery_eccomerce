@@ -8,7 +8,7 @@ from django.views.generic.edit import CreateView, FormView
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .forms import UserProfileForm, PaymentForm
+from .forms import UserProfileForm, PaymentForm, LoginForm
 from .serializers import ProductSerializer, OrderSerializer, CartItemSerializer, CartSerializer, SavedItemSerializer
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
@@ -30,6 +30,8 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.http import require_POST
 from django.middleware.csrf import get_token
 from django.urls import reverse_lazy
+from django.db.models import Q
+
 
 
 def csrf_token_view(request):
@@ -40,9 +42,9 @@ def csrf_token_view(request):
     
     return JsonResponse({'csrf_token': csrf_token})
 
-class LoginForm(forms.Form):
-    username = forms.CharField(max_length=150)
-    password = forms.CharField(widget=forms.PasswordInput)
+# class LoginForm(forms.Form):
+#     username = forms.CharField(max_length=150)
+#     password = forms.CharField(widget=forms.PasswordInput)
 
 
 
@@ -165,76 +167,67 @@ class PaymentView(APIView):
         else:
             return JsonResponse({'error': 'Invalid data'}, status=400)
 
-# class UserLoginView(APIView):
-#     permission_classes = [AllowAny]
-#     template_name = 'registration/login.html'
-
-#     @swagger_auto_schema(
-#         operation_id='user_login',
-#         request_body=openapi.Schema(
-#             type=openapi.TYPE_OBJECT,
-#             properties={
-#                 'username': openapi.Schema(type=openapi.TYPE_STRING),
-#                 'password': openapi.Schema(type=openapi.TYPE_STRING)
-#             }
-#         ),
-#         responses={200: openapi.Response(description="Login successful"),
-#                    400: openapi.Response(description="Invalid credentials")}
-#     )
-#     def get(self, request):
-#         return render(request, 'login.html')
-
-#     @method_decorator(csrf_exempt)
-#     def dispatch(self, *args, **kwargs):
-#         return super().dispatch(*args, **kwargs)
-
-#     def post(self, request):
-#         if request.content_type == 'application/json':
-#             username = request.data.get('username')
-#             password = request.data.get('password')
-#         else:
-#             username = request.POST.get('username')
-#             password = request.POST.get('password')
-
-#         user = authenticate(request, username=username, password=password)
-
-#         if user is not None:
-#             login(request, user)
-#             session_key = request.session.session_key
-#             user_data = {
-#                 'id': user.id,
-#                 'username': user.username,
-#                 'email': user.email,
-#                 'first_name': user.first_name,
-#                 'last_name': user.last_name
-#             }
-#             if request.content_type == 'application/json':
-#                 return JsonResponse({'message': 'Login successful', 'session_id': session_key, 'user': user_data})
-#             else:
-#                 return redirect('home')
-#         else:
-#             if request.content_type == 'application/json':
-#                 return JsonResponse({'error': 'Invalid credentials'}, status=400)
-#             else:
-#                 return HttpResponse('Invalid login credentials')
-
-@method_decorator(csrf_exempt, name='dispatch')
-class UserLoginView(FormView):
+@csrf_exempt
+class UserLoginView(APIView):
+    permission_classes = [AllowAny]
     template_name = 'registration/login.html'
-    form_class = LoginForm
-    success_url = reverse_lazy('home')
 
-    def form_valid(self, form):
-        username = form.cleaned_data.get('username')
-        password = form.cleaned_data.get('password')
-        user = authenticate(self.request, username=username, password=password)
+    @swagger_auto_schema(
+        operation_id='user_login',
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'username': openapi.Schema(type=openapi.TYPE_STRING),
+                'password': openapi.Schema(type=openapi.TYPE_STRING)
+            }
+        ),
+        responses={200: openapi.Response(description="Login successful"),
+                   400: openapi.Response(description="Invalid credentials")}
+    )
+    def get(self, request):
+        form = LoginForm()
+        return render(request, self.template_name, {'form': form})
+
+
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
+
+    def post(self, request):
+        if request.content_type == 'application/json':
+            username = request.data.get('username')
+            password = request.data.get('password')
+        else:
+            form = LoginForm(request.POST)
+            if form.is_valid():
+                username = form.cleaned_data['username']
+                password = form.cleaned_data['password']
+            else:
+                return render(request, self.template_name, {'form': form})
+
+        user = authenticate(request, username=username, password=password)
 
         if user is not None:
-            login(self.request, user)
-            return super().form_valid(form)
+            login(request, user)
+            session_key = request.session.session_key
+            user_data = {
+                'id': user.id,
+                'username': user.username,
+                'email': user.email,
+                'first_name': user.first_name,
+                'last_name': user.last_name
+            }
+            if request.content_type == 'application/json':
+                return JsonResponse({'message': 'Login successful', 'session_id': session_key, 'user': user_data})
+            else:
+                return redirect('home')
         else:
-            return self.form_invalid(form)
-        
+            if request.content_type == 'application/json':
+                return JsonResponse({'error': 'Invalid credentials'}, status=400)
+            else:
+                form = LoginForm()
+                return render(request, self.template_name, {'form': form, 'error': 'Invalid login credentials'})
+            
+
 class ProductListView(APIView):
     authentication_classes = []
     
@@ -246,6 +239,7 @@ class ProductListView(APIView):
         products = Product.objects.all()
         serializer = ProductSerializer(products, many=True, context={'request': request})
         return Response(serializer.data)
+    
 class SavedItemListCreateView(generics.ListCreateAPIView):
     serializer_class = SavedItemSerializer
     authentication_classes = [CsrfExemptSessionAuthentication, BasicAuthentication]
@@ -802,3 +796,33 @@ class OrganicProductsView(generics.ListAPIView):
         Get a list of products that are 100% organic.
         """
         return Product.objects.filter(organic=True)
+    
+
+class ProductSearchView(APIView):
+    def get(self, request):
+        query = request.GET.get('q', '')
+        if query:
+            keywords = query.split(',')
+            products = Product.objects.filter(
+                Q(name__icontains=query) | 
+                Q(description__icontains=query) | 
+                Q(keywords__icontains=query)
+            ).distinct()
+        else:
+            products = Product.objects.none()
+
+        product_list = [{
+            'id': product.id,
+            'name': product.name,
+            'description': product.description,
+            'price': product.price,
+            'availability': product.availability,
+            'discount': product.discount,
+            'category': product.category.name,
+            'subcategory': product.subcategory.name,
+            'organic': product.organic,
+            'picture': product.picture.url if product.picture else None,
+        } for product in products]
+
+        return JsonResponse({'products': product_list})
+    

@@ -1,4 +1,3 @@
-<!-- templates/registration/login.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,8 +6,8 @@
 </head>
 <body>
     <h2>Login</h2>
-    <form method="post" action="{% url 'user_login' %}">
-        <!-- {% csrf_token %} -->
+    <form method="post" action="{% url 'userlogin' %}">
+        {% csrf_token %}
         {{ form.as_p }}
         <button type="submit">Login</button>
     </form>
