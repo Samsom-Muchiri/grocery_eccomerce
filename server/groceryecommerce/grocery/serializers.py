@@ -9,6 +9,10 @@ class SavedItemSerializer(serializers.ModelSerializer):
         read_only_fields = ['user', 'saved_at']
 
         
+class LoginSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    password = serializers.CharField()
+
 
 # class SendSTKPushSerializer(serializers.Serializer):
 #     phone_payment_number = serializers.CharField()

@@ -9,7 +9,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from .forms import UserProfileForm, PaymentForm, LoginForm
-from .serializers import ProductSerializer, OrderSerializer, CartItemSerializer, CartSerializer, SavedItemSerializer
+from .serializers import ProductSerializer, OrderSerializer, CartItemSerializer, CartSerializer, SavedItemSerializer, LoginSerializer
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from rest_framework.permissions import IsAuthenticated
@@ -31,7 +31,6 @@ from django.views.decorators.http import require_POST
 from django.middleware.csrf import get_token
 from django.urls import reverse_lazy
 from django.db.models import Q
-
 
 
 def csrf_token_view(request):
@@ -167,7 +166,7 @@ class PaymentView(APIView):
         else:
             return JsonResponse({'error': 'Invalid data'}, status=400)
 
-@csrf_exempt
+
 class UserLoginView(APIView):
     permission_classes = [AllowAny]
     template_name = 'registration/login.html'
@@ -191,7 +190,8 @@ class UserLoginView(APIView):
 
     def dispatch(self, *args, **kwargs):
         return super().dispatch(*args, **kwargs)
-
+    
+    @csrf_exempt
     def post(self, request):
         if request.content_type == 'application/json':
             username = request.data.get('username')

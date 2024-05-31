@@ -3,8 +3,8 @@ from django.urls import path
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
-from grocery.views import ProductListView, CreateOrderView, OrderListView, OrderDetailView, UserRegisterView, UserProfileView, PaymentView, home, DeliveryListView, DeliveryDetailView, ProductListByCategory, AddToCart, UpdateCart, CreateProductView, SalesActivityView, GoodsSoldOnOfferView, TotalSalesAmountView, ProductListBySubCategory, TopPicksView, NewArrivalsView, OrganicProductsView, csrf_token_view, SavedItemListCreateView, SavedItemDetailView, ProductSearchView
-from django.contrib.auth.views import LoginView
+from grocery.views import ProductListView, CreateOrderView, OrderListView, OrderDetailView, UserRegisterView, UserProfileView, PaymentView, home, DeliveryListView, DeliveryDetailView, ProductListByCategory, AddToCart, UpdateCart, CreateProductView, SalesActivityView, GoodsSoldOnOfferView, TotalSalesAmountView, ProductListBySubCategory, TopPicksView, NewArrivalsView, OrganicProductsView, csrf_token_view, SavedItemListCreateView, SavedItemDetailView, ProductSearchView, UserLoginView
+
 from MpesaViews.mpesaexpress import initiate_mpesa_stk_push, mpesa_callback
 from MpesaViews.testview import send_prompt, send_prompt_res
 from django.conf.urls.static import static
@@ -33,7 +33,7 @@ urlpatterns = [
     path('orders_creation/', CreateOrderView.as_view(), name='create_order'),
     path('orders/', OrderListView.as_view(), name='list_orders'),
     path('orders/<int:order_id>/', OrderDetailView.as_view(), name='view_order'),
-    path('userlogin/', LoginView.as_view(template_name='registration/login.html'), name='user_login'),
+    path('userlogin/', UserLoginView.as_view(), name='user_login'),
     path('register/', UserRegisterView.as_view(), name='user_register'),
     path('profile/', UserProfileView.as_view(), name='user_profile'),
     path('payment/', PaymentView.as_view(), name='payment'),
