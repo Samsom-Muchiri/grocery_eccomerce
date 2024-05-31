@@ -41,11 +41,6 @@ def csrf_token_view(request):
     
     return JsonResponse({'csrf_token': csrf_token})
 
-# class LoginForm(forms.Form):
-#     username = forms.CharField(max_length=150)
-#     password = forms.CharField(widget=forms.PasswordInput)
-
-
 
 class CsrfExemptSessionAuthentication(SessionAuthentication):
     def enforce_csrf(self, request):
@@ -171,6 +166,15 @@ class UserLoginView(APIView):
     permission_classes = [AllowAny]
     template_name = 'registration/login.html'
 
+    def get(self, request):
+        form = LoginForm()
+        return render(request, self.template_name, {'form': form})
+
+
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
+    
+
     @swagger_auto_schema(
         operation_id='user_login',
         request_body=openapi.Schema(
@@ -183,19 +187,15 @@ class UserLoginView(APIView):
         responses={200: openapi.Response(description="Login successful"),
                    400: openapi.Response(description="Invalid credentials")}
     )
-    def get(self, request):
-        form = LoginForm()
-        return render(request, self.template_name, {'form': form})
-
-
-    def dispatch(self, *args, **kwargs):
-        return super().dispatch(*args, **kwargs)
-    
     @csrf_exempt
     def post(self, request):
         if request.content_type == 'application/json':
-            username = request.data.get('username')
-            password = request.data.get('password')
+            try:
+                json_data = json.loads(request.body)
+                username = json_data.get('username')
+                password = json_data.get('password')
+            except json.JSONDecodeError:
+                return JsonResponse({'error': 'Invalid JSON data'}, status=400)
         else:
             form = LoginForm(request.POST)
             if form.is_valid():
@@ -203,7 +203,7 @@ class UserLoginView(APIView):
                 password = form.cleaned_data['password']
             else:
                 return render(request, self.template_name, {'form': form})
-
+        
         user = authenticate(request, username=username, password=password)
 
         if user is not None:
@@ -227,7 +227,6 @@ class UserLoginView(APIView):
                 form = LoginForm()
                 return render(request, self.template_name, {'form': form, 'error': 'Invalid login credentials'})
             
-
 class ProductListView(APIView):
     authentication_classes = []
     

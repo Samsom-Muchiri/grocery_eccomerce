@@ -9,7 +9,7 @@ from MpesaViews.mpesaexpress import initiate_mpesa_stk_push, mpesa_callback
 from MpesaViews.testview import send_prompt, send_prompt_res
 from django.conf.urls.static import static
 from django.conf import settings
-from django.conf.urls.static import serve
+# from django.conf.urls.static import serve
 
 
 schema_view = get_schema_view(
