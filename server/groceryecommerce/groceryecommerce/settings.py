@@ -36,7 +36,7 @@ INSTALLED_APPS = [
     'drf_yasg',
     'corsheaders',
     'channels',
-    'django-daraja',
+    'django_daraja',
 ]
 
 MIDDLEWARE = [
