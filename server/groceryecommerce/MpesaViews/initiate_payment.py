@@ -20,7 +20,10 @@ def initiate_payment(request):
             total_amount = order.total_amount
 
             cl = get_mpesa_client()
-            stk_response = cl.stk_push(phone_number, total_amount, 'reference', 'description')
+            transaction_desc = f"Payment for Order #{order.id}"
+            callback_url = 'https://cae7-102-213-93-44.ngrok-free.app/mpesa_payment_callback/'
+            
+            stk_response = cl.stk_push(phone_number, total_amount, 'reference', transaction_desc, callback_url)
             
             if stk_response.is_successful:
                 mpesa_response = MpesaResponseBody.objects.create(body=stk_response.response)
@@ -29,7 +32,8 @@ def initiate_payment(request):
                     status='pending',
                     mpesa_response=mpesa_response,
                     phone_payment_number=phone_number,
-                    provider='Mpesa'
+                    provider='Mpesa',
+                    mpesa_transaction_id=stk_response.response['CheckoutRequestID']
                 )
                 order.payment = payment
                 order.save()
