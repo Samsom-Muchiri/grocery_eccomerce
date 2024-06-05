@@ -8,7 +8,7 @@ from django.views.generic.edit import CreateView, FormView
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .forms import UserProfileForm, PaymentForm, LoginForm
+from .forms import UserProfileForm, PaymentForm, LoginForm, CheckoutForm
 from .serializers import ProductSerializer, OrderSerializer, CartItemSerializer, CartSerializer, SavedItemSerializer, LoginSerializer
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
@@ -147,18 +147,6 @@ class UserProfileView(APIView):
         else:
             errors = form.errors.as_json()
             print(errors)  
-            return JsonResponse({'error': 'Invalid data'}, status=400)
-
-class PaymentView(APIView):
-    authentication_classes = [CsrfExemptSessionAuthentication, BasicAuthentication]
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request):
-        form = PaymentForm(request.POST)
-        if form.is_valid():
-            # Process payment logic
-            return JsonResponse({'message': 'Payment successful'})
-        else:
             return JsonResponse({'error': 'Invalid data'}, status=400)
 
 
@@ -824,4 +812,49 @@ class ProductSearchView(APIView):
         } for product in products]
 
         return JsonResponse({'products': product_list})
+
+@login_required
+@csrf_exempt
+def checkout(request):
+    if request.method == 'POST':
+        form = CheckoutForm(request.POST)
+        if form.is_valid():
+            delivery_data = form.cleaned_data['delivery']
+            tip_amount = form.cleaned_data['tip']
+            
+            cart = request.user.cart
+            total_price = sum(item.product.price * item.quantity for item in cart.items.all())
+            tip = Tip.objects.create(amount=tip_amount)
+
+            order = Order.objects.create(
+                user=request.user,
+                total_price=total_price,
+                tip=tip, 
+            )
+            order.products.set([item.product for item in cart.items.all()])
+            order.save()
+            
+            Delivery.objects.create(
+                order=order,
+                **delivery_data
+            )
+            
+            cart.items.all().delete()
+            
+            return JsonResponse({
+                'message': 'Order created successfully',
+                'order_id': order.id,
+                'order_details': {
+                    'total_price': str(order.total_price),
+                    'tip': str(order.tip.amount),
+                    'total_amount': str(order.total_amount),
+                    'status': order.status,
+                }
+            })
+        else:
+            return JsonResponse({'error': 'Invalid form data'}, status=400)
+    else:
+        form = CheckoutForm()
     
+    return render(request, 'checkout.html', {'form': form})
+

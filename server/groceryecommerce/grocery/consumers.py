@@ -22,7 +22,6 @@ class OrderStatusConsumer(AsyncWebsocketConsumer):
         text_data_json = json.loads(text_data)
         order_id = text_data_json['order_id']
 
-        # Fetch order status from the database
         from .models import Order
         try:
             order = Order.objects.get(id=order_id)
@@ -33,4 +32,10 @@ class OrderStatusConsumer(AsyncWebsocketConsumer):
         # Send status back to WebSocket
         await self.send(text_data=json.dumps({
             'status': status
+        }))
+
+    async def order_status_update(self, event):
+        await self.send(text_data=json.dumps({
+            'order_id': event['order_id'],
+            'status': event['status']
         }))

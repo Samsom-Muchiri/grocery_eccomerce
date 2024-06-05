@@ -5,8 +5,10 @@ from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from grocery.views import ProductListView, CreateOrderView, OrderListView, OrderDetailView, UserRegisterView, UserProfileView, PaymentView, home, DeliveryListView, DeliveryDetailView, ProductListByCategory, AddToCart, UpdateCart, CreateProductView, SalesActivityView, GoodsSoldOnOfferView, TotalSalesAmountView, ProductListBySubCategory, TopPicksView, NewArrivalsView, OrganicProductsView, csrf_token_view, SavedItemListCreateView, SavedItemDetailView, ProductSearchView, UserLoginView
 
-from MpesaViews.mpesaexpress import initiate_mpesa_stk_push, mpesa_callback
-from MpesaViews.testview import send_prompt, send_prompt_res
+# from MpesaViews.mpesaexpress import initiate_mpesa_stk_push, mpesa_callback
+from MpesaViews.callback import mpesa_payment_callback
+from MpesaViews.initiate_payment import initiate_payment
+# from MpesaViews.testview import send_prompt, send_prompt_res
 from django.conf.urls.static import static
 from django.conf import settings
 # from django.conf.urls.static import serve
@@ -44,13 +46,13 @@ urlpatterns = [
     path('add-to-cart/', AddToCart.as_view(), name='add-to-cart'),
     path('update-cart/<int:pk>/', UpdateCart.as_view(), name='update-cart'),
     path('create-product/', CreateProductView.as_view(), name='create_product'),
-    path("mpesa/callback/", mpesa_callback, name="mpesa_callback"),
-    path("mpesa/stkpush/", initiate_mpesa_stk_push, name="stk_push"),
+    # path("mpesa/callback/", mpesa_callback, name="mpesa_callback"),
+    # path("mpesa/stkpush/", initiate_mpesa_stk_push, name="stk_push"),
     path('sale-activity/', SalesActivityView.as_view(), name='sale-activity'),
     path('goods-sold/', GoodsSoldOnOfferView.as_view(), name='goods-sold'),
     path('total-sales-amount/', TotalSalesAmountView.as_view(), name='total-sales-amount'),
-    path('mpesa_prompt/', send_prompt, name='send_prompt'),
-    path('prompt_res/', send_prompt_res, name='send_prompt_res'),
+    # path('mpesa_prompt/', send_prompt, name='send_prompt'),
+    # path('prompt_res/', send_prompt_res, name='send_prompt_res'),
     path('top-picks/', TopPicksView.as_view()),
     path('products/new-arrivals/', NewArrivalsView.as_view(), name='new-arrivals'),
     path('products/organic/', OrganicProductsView.as_view(), name='organic-products'),
@@ -59,6 +61,9 @@ urlpatterns = [
     path('saved-items/<int:pk>/', SavedItemDetailView.as_view(), name='saved-item-detail'),
     path('search/', ProductSearchView.as_view(), name='product_search'),
     # path("mpesa/mpesapayments/", MobileMoneyPayment, name="mpesapayments")
+    path('initiate_payment/', initiate_payment, name='initiate_payment'),
+    path('mpesa_payment_callback/', mpesa_payment_callback, name='mpesa_payment_callback'),
+    
 
 ]
 
