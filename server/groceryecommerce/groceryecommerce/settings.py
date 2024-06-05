@@ -36,7 +36,7 @@ INSTALLED_APPS = [
     'drf_yasg',
     'corsheaders',
     'channels',
-    'daraja',
+    'django-daraja',
 ]
 
 MIDDLEWARE = [
@@ -179,7 +179,7 @@ MPESA_SHORTCODE = '174379'
 MPESA_PASSKEY = 'fb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919'
 MPESA_CONSUMER_KEY = 'SnIVwrQBzAJZH9hIvXDAk0saTcfO9wjdnnOefNSH8T4TOpIA'
 MPESA_CONSUMER_SECRET = 'UKiw63DBGHBn4YqUT7AbeqIySIjJnKPhGlfepm5lUZZbiBGNTMfZ7IruKwZiPeak'
-MPESA_CALLBACK_URL = 'https://cae7-102-213-93-44.ngrok-free.app/mpesa/callback/'
+MPESA_CALLBACK_URL = 'https://cae7-102-213-93-44.ngrok-free.app/mpesa_payment_callback/'
 MPESA_STK_PUSH_URL = 'https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest'
 MPESA_ENVIRONMENT = 'sandbox'
 
