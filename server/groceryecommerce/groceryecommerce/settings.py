@@ -35,6 +35,8 @@ INSTALLED_APPS = [
     'grocery',
     'drf_yasg',
     'corsheaders',
+    'channels',
+    'daraja',
 ]
 
 MIDDLEWARE = [
@@ -182,3 +184,15 @@ SAFARICOM_STK_PUSH_URL = 'https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/proce
 
 MEDIA_URL = ''
 MEDIA_ROOT = ''
+
+
+ASGI_APPLICATION = 'grocery.asgi.application'
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('127.0.0.1', 6379)],
+        },
+    },
+}
