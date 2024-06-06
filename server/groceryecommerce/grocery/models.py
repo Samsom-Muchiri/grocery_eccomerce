@@ -65,9 +65,9 @@ class Order(models.Model):
     
     def calculate_total_amount(self):
         # delivery_cost = self.delivery.calculate_delivery_cost()
-        payment_cost = self.payment.calculate_payment_cost()
         tip_amount = self.tip.amount if self.tip else 0
-        total = payment_cost + tip_amount
+        total_price = self.total_price
+        total =  total_price + tip_amount
         return total
 
 

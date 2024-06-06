@@ -1,6 +1,9 @@
 import os
 import dj_database_url
 from pathlib import Path
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -173,16 +176,6 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-MPESA_ENVIRONMENT = 'sandbox'
-
-MPESA_SHORTCODE = '174379'
-MPESA_PASSKEY = 'fb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919'
-MPESA_CONSUMER_KEY = 'SnIVwrQBzAJZH9hIvXDAk0saTcfO9wjdnnOefNSH8T4TOpIA'
-MPESA_CONSUMER_SECRET = 'UKiw63DBGHBn4YqUT7AbeqIySIjJnKPhGlfepm5lUZZbiBGNTMfZ7IruKwZiPeak'
-MPESA_CALLBACK_URL = 'https://cae7-102-213-93-44.ngrok-free.app/mpesa_payment_callback/'
-MPESA_STK_PUSH_URL = 'https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest'
-MPESA_ENVIRONMENT = 'sandbox'
-
 
 MEDIA_URL = ''
 MEDIA_ROOT = ''
@@ -198,3 +191,12 @@ CHANNEL_LAYERS = {
         },
     },
 }
+
+MPESA_CONSUMER_KEY = os.getenv('MPESA_CONSUMER_KEY')
+MPESA_CONSUMER_SECRET = os.getenv('MPESA_CONSUMER_SECRET')
+MPESA_ENVIRONMENT = os.getenv('MPESA_ENVIRONMENT')
+MPESA_PASSKEY = os.getenv('MPESA_PASSKEY')
+MPESA_INITIATOR_NAME = os.getenv('MPESA_INITIATOR_NAME')
+MPESA_SHORTCODE = os.getenv('MPESA_SHORTCODE')
+MPESA_EXPRESS_SHORTCODE = os.getenv('MPESA_EXPRESS_SHORTCODE')
+MPESA_SHORTCODE_TYPE = os.getenv('MPESA_SHORTCODE_TYPE')

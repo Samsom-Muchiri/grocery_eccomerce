@@ -3,7 +3,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 from grocery.models import Order, MobileMoneyPayment, MpesaResponseBody
-# from django_daraja.mpesa.core import MpesaClient
+from django_daraja.mpesa.core import MpesaClient
 from .mpesa import get_mpesa_client
 
 
@@ -17,11 +17,12 @@ def initiate_payment(request):
 
         try:
             order = Order.objects.get(id=order_id, user=request.user)
-            total_amount = order.total_amount
+            total_amount = int(order.total_amount)
+            reference = 'reference'
 
-            cl = get_mpesa_client()
+            cl = MpesaClient()
             transaction_desc = f"Payment for Order #{order.id}"
-            callback_url = 'https://cae7-102-213-93-44.ngrok-free.app/mpesa_payment_callback/'
+            callback_url = 'https://api.darajambili.com/express-payment/'
             
             stk_response = cl.stk_push(phone_number, total_amount, 'reference', transaction_desc, callback_url)
             
