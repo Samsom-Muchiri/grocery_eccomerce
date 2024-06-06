@@ -216,7 +216,7 @@ class UserLoginView(APIView):
                 return render(request, self.template_name, {'form': form, 'error': 'Invalid login credentials'})
             
 class ProductListView(APIView):
-    authentication_classes = []
+    authentication_classes = [CsrfExemptSessionAuthentication, BasicAuthentication]
     
     @swagger_auto_schema(operation_id='list_products', responses={200: openapi.Response(description="List of products", schema=ProductSerializer(many=True))})
     def get(self, request):
@@ -852,6 +852,7 @@ def checkout(request):
                 }
             })
         else:
+            print(form.errors)
             return JsonResponse({'error': 'Invalid form data'}, status=400)
     else:
         form = CheckoutForm()
