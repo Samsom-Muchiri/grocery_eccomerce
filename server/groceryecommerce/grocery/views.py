@@ -819,8 +819,17 @@ def checkout(request):
     if request.method == 'POST':
         form = CheckoutForm(request.POST)
         if form.is_valid():
-            delivery_data = form.cleaned_data['delivery']
-            tip_amount = form.cleaned_data['tip']
+            contact = form.cleaned_data['contact']
+            delivery_data = {
+                'country_name': form.cleaned_data['delivery_country_name'],
+                'first_name': form.cleaned_data['delivery_first_name'],
+                'second_name': form.cleaned_data['delivery_second_name'],
+                'address': form.cleaned_data['delivery_address'],
+                'city': form.cleaned_data['delivery_city'],
+                'postal_code': form.cleaned_data['delivery_postal_code'],
+                'phone_number': form.cleaned_data['delivery_phone_number'],
+            }
+            tip_amount = form.cleaned_data['tip_amount']
             
             cart = request.user.cart
             total_price = sum(item.product.price * item.quantity for item in cart.items.all())

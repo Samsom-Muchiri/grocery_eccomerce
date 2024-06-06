@@ -44,6 +44,13 @@ class PaymentForm(forms.Form):
     phone_number = forms.CharField(max_length=20, required=False)
     
 class CheckoutForm(forms.Form):
-    delivery = DeliveryForm()
-    payment = PaymentForm()
-    tip = forms.DecimalField(max_digits=10, decimal_places=2, required=False, initial=0)
+    contact = forms.CharField(max_length=100)
+    delivery_country_name = forms.CharField(max_length=100)
+    delivery_first_name = forms.CharField(max_length=100)
+    delivery_second_name = forms.CharField(max_length=100)
+    delivery_address = forms.CharField(max_length=255)
+    delivery_city = forms.CharField(max_length=100)
+    delivery_postal_code = forms.CharField(max_length=20)
+    delivery_phone_number = forms.CharField(max_length=20)
+    tip_amount = forms.DecimalField(max_digits=10, decimal_places=2)
+    
