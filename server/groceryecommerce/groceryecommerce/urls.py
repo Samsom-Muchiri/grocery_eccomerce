@@ -4,11 +4,8 @@ from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from grocery.views import ProductListView, CreateOrderView, OrderListView, OrderDetailView, UserRegisterView, UserProfileView, home, DeliveryListView, DeliveryDetailView, ProductListByCategory, AddToCart, UpdateCart, CreateProductView, SalesActivityView, GoodsSoldOnOfferView, TotalSalesAmountView, ProductListBySubCategory, TopPicksView, NewArrivalsView, OrganicProductsView, csrf_token_view, SavedItemListCreateView, SavedItemDetailView, ProductSearchView, UserLoginView, checkout
-
-# from MpesaViews.mpesaexpress import initiate_mpesa_stk_push, mpesa_callback
 from MpesaViews.callback import mpesa_payment_callback
 from MpesaViews.initiate_payment import initiate_payment
-# from MpesaViews.testview import send_prompt, send_prompt_res
 from django.conf.urls.static import static
 from django.conf import settings
 # from django.conf.urls.static import serve
@@ -56,7 +53,7 @@ urlpatterns = [
     path('saved-items/<int:pk>/', SavedItemDetailView.as_view(), name='saved-item-detail'),
     path('search/', ProductSearchView.as_view(), name='product_search'),
     path('initiate_payment/', initiate_payment, name='initiate_payment'),
-    path('mpesa_payment_callback/', mpesa_payment_callback, name='mpesa_payment_callback'),
+    path('callback/', mpesa_payment_callback, name='callback'),
     path('checkout/', checkout, name='checkout'),
     
     

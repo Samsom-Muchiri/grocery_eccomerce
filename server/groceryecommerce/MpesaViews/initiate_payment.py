@@ -4,7 +4,15 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 from grocery.models import Order, MobileMoneyPayment, MpesaResponseBody
 from django_daraja.mpesa.core import MpesaClient
-from .mpesa import get_mpesa_client
+# from .mpesa import get_mpesa_client
+import logging
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+handler = logging.StreamHandler()
+handler.setFormatter(formatter)
+logger.addHandler(handler)
 
 
 @login_required
@@ -22,11 +30,14 @@ def initiate_payment(request):
 
             cl = MpesaClient()
             transaction_desc = f"Payment for Order #{order.id}"
-            callback_url = 'https://api.darajambili.com/express-payment/'
+            callback_url = 'https://6240-102-213-93-26.ngrok-free.app/callback'
             
-            stk_response = cl.stk_push(phone_number, total_amount, 'reference', transaction_desc, callback_url)
+            response = cl.stk_push(phone_number, total_amount, reference, transaction_desc, callback_url)
             
-            if stk_response.is_successful:
+            logger.debug("Mpesa Response:", response)
+
+
+            if response.get('ResultCode') == 0:
                 mpesa_response = MpesaResponseBody.objects.create(body=stk_response.response)
                 payment = MobileMoneyPayment.objects.create(
                     amount=total_amount,
@@ -34,7 +45,7 @@ def initiate_payment(request):
                     mpesa_response=mpesa_response,
                     phone_payment_number=phone_number,
                     provider='Mpesa',
-                    mpesa_transaction_id=stk_response.response['CheckoutRequestID']
+                    mpesa_transaction_id=response['CheckoutRequestID']
                 )
                 order.payment = payment
                 order.save()

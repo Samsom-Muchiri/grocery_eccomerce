@@ -168,6 +168,7 @@ USE_TZ = True
 #     STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
 # URL to use when referring to static files located in STATIC_ROOT
 STATIC_URL = '/static/'
@@ -177,8 +178,9 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-MEDIA_URL = ''
-MEDIA_ROOT = ''
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
 
 
 ASGI_APPLICATION = 'grocery.asgi.application'
@@ -197,6 +199,5 @@ MPESA_CONSUMER_SECRET = os.getenv('MPESA_CONSUMER_SECRET')
 MPESA_ENVIRONMENT = os.getenv('MPESA_ENVIRONMENT')
 MPESA_PASSKEY = os.getenv('MPESA_PASSKEY')
 MPESA_INITIATOR_NAME = os.getenv('MPESA_INITIATOR_NAME')
-MPESA_SHORTCODE = os.getenv('MPESA_SHORTCODE')
 MPESA_EXPRESS_SHORTCODE = os.getenv('MPESA_EXPRESS_SHORTCODE')
 MPESA_SHORTCODE_TYPE = os.getenv('MPESA_SHORTCODE_TYPE')
