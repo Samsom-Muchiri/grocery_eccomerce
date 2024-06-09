@@ -9,6 +9,9 @@ from MpesaViews.initiate_payment import initiate_payment
 from django.conf.urls.static import static
 from django.conf import settings
 # from django.conf.urls.static import serve
+from django.conf.urls.static import static
+from django.conf import settings
+
 
 
 schema_view = get_schema_view(
