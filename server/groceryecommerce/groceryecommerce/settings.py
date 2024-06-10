@@ -201,3 +201,26 @@ MPESA_PASSKEY = os.getenv('MPESA_PASSKEY')
 MPESA_INITIATOR_NAME = os.getenv('MPESA_INITIATOR_NAME')
 MPESA_EXPRESS_SHORTCODE = os.getenv('MPESA_EXPRESS_SHORTCODE')
 MPESA_SHORTCODE_TYPE = os.getenv('MPESA_SHORTCODE_TYPE')
+
+# LOGGING = {
+#     'version': 1,
+#     'disable_existing_loggers': False,
+#     'handlers': {
+#         'console': {
+#             'level': 'DEBUG',
+#             'class': 'logging.StreamHandler',
+#         },
+#     },
+#     'loggers': {
+#         'django': {
+#             'handlers': ['console'],
+#             'level': 'DEBUG',
+#             'propagate': True,
+#         },
+#         'grocery': {
+#             'handlers': ['console'],
+#             'level': 'DEBUG',
+#             'propagate': True,
+#         },
+#     },
+# }

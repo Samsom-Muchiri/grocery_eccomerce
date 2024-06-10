@@ -9,17 +9,15 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from .forms import UserProfileForm, PaymentForm, LoginForm, CheckoutForm
-from .serializers import ProductSerializer, OrderSerializer, CartItemSerializer, CartSerializer, SavedItemSerializer, LoginSerializer
+from .serializers import ProductSerializer, OrderSerializer, CartItemSerializer, CartSerializer, SavedItemSerializer, LoginSerializer, DeliverySerializer
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.decorators import api_view, permission_classes
 from django.contrib.auth.forms import UserCreationForm
 from django.utils.decorators import method_decorator
-from .serializers import DeliverySerializer, CartSerializer
 from django.contrib.sessions.backends.db import SessionStore
 from rest_framework import generics
-from django.db.models import Sum, F, ExpressionWrapper, DateTimeField, Max
+from django.db.models import Sum, F, ExpressionWrapper, DateTimeField, Max, Case, When
 import random
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication, BaseAuthentication
 from rest_framework.exceptions import AuthenticationFailed
@@ -27,10 +25,11 @@ from rest_framework.permissions import AllowAny
 from django.contrib.auth import login, authenticate, logout
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
-from django.views.decorators.http import require_POST
 from django.middleware.csrf import get_token
-from django.urls import reverse_lazy
 from django.db.models import Q
+# import logging
+
+# logger = logging.getLogger(__name__)
 
 
 def csrf_token_view(request):
@@ -549,7 +548,6 @@ class AddToCart(APIView):
 
                 cart_item.quantity += 1
                 
-                # Calculate the price after applying the offer, if available
                 item_price = price if price is not None else product.price
                 if offer is not None:
                     item_price -= offer
@@ -748,12 +746,15 @@ class TopPicksView(APIView):
     """
     def get(self, request):
         all_products = Product.objects.filter(availability=True)
-        top_picks = random.sample(list(all_products), 10)
+        if len(all_products) < 10:
+            top_picks = all_products
+        else:
+            top_picks = random.sample(list(all_products), 10)
+        
         serializer = ProductSerializer(top_picks, many=True)
         return Response(serializer.data)
 
 class NewArrivalsView(generics.ListAPIView):
-
     authentication_classes = []
     serializer_class = ProductSerializer
 
@@ -762,16 +763,17 @@ class NewArrivalsView(generics.ListAPIView):
         responses={200: openapi.Response(description="List of new arrivals", schema=ProductSerializer(many=True))}
     )
     def get_queryset(self):
-        """
-        Get a list of the latest 6 products considering both creation and update timestamps.
-        """
-        return Product.objects.annotate(
-            most_recent_action=Max(F('created_at'), F('updated_at'))
+        queryset = Product.objects.annotate(
+            most_recent_action=Case(
+                When(created_at__gt=F('updated_at'), then='created_at'),
+                default='updated_at',
+                output_field=DateTimeField()
+            )
         ).order_by('-most_recent_action')[:6]
-
+        return queryset
+        
 class OrganicProductsView(generics.ListAPIView):
     authentication_classes = []
-    
     serializer_class = ProductSerializer
 
     @swagger_auto_schema(
@@ -779,13 +781,20 @@ class OrganicProductsView(generics.ListAPIView):
         responses={200: openapi.Response(description="List of organic products", schema=ProductSerializer(many=True))}
     )
     def get_queryset(self):
-        """
-        Get a list of products that are 100% organic.
-        """
-        return Product.objects.filter(organic=True)
-    
+        queryset = Product.objects.filter(organic=True)
+        return queryset
+
+
 
 class ProductSearchView(APIView):
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter(
+                'q', openapi.IN_QUERY, description="Search query", type=openapi.TYPE_STRING
+            )
+        ],
+        responses={200: 'List of products'}
+    )
     def get(self, request):
         query = request.GET.get('q', '')
         if query:
@@ -861,7 +870,6 @@ def checkout(request):
                 }
             })
         else:
-            print(form.errors)
             return JsonResponse({'error': 'Invalid form data'}, status=400)
     else:
         form = CheckoutForm()

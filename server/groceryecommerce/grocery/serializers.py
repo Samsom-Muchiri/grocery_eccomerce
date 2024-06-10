@@ -65,8 +65,10 @@ class ProductSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Product
-        fields = '__all__'
-        extra_fields = ['category_name', 'subcategory_name']
+        fields = [
+            'id', 'name', 'description', 'picture', 'price', 'quantity', 'availability',
+            'discount', 'keywords', 'organic', 'created_at', 'updated_at', 'category_name', 'subcategory_name', 'image_url'
+        ]
     
     def get_image_url(self, obj):
         request = self.context.get('request', None)
@@ -78,7 +80,8 @@ class ProductSerializer(serializers.ModelSerializer):
         return obj.category.name if obj.category else None
     
     def get_subcategory_name(self, obj):
-        return obj.category.name if obj.category else None
+        return obj.subcategory.name if obj.subcategory else None
+    
 
 class TipSerializer(serializers.ModelSerializer):
 
