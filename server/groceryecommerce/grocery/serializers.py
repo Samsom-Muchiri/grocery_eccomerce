@@ -134,3 +134,15 @@ class SubcategorySerializer(serializers.ModelSerializer):
         model = Subcategory
         fields = '__all__'
 
+
+class CheckoutSerializer(serializers.Serializer):
+    contact = serializers.CharField()
+    delivery_country_name = serializers.CharField()
+    delivery_first_name = serializers.CharField()
+    delivery_second_name = serializers.CharField()
+    delivery_address = serializers.CharField()
+    delivery_city = serializers.CharField()
+    delivery_postal_code = serializers.CharField()
+    delivery_phone_number = serializers.CharField()
+    tip_amount = serializers.DecimalField(max_digits=10, decimal_places=2)
+    

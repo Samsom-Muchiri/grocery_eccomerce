@@ -3,7 +3,7 @@ from django.urls import path
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
-from grocery.views import ProductListView, CreateOrderView, OrderListView, OrderDetailView, UserRegisterView, UserProfileView, home, DeliveryListView, DeliveryDetailView, ProductListByCategory, AddToCart, UpdateCart, CreateProductView, SalesActivityView, GoodsSoldOnOfferView, TotalSalesAmountView, ProductListBySubCategory, TopPicksView, NewArrivalsView, OrganicProductsView, csrf_token_view, SavedItemListCreateView, SavedItemDetailView, ProductSearchView, UserLoginView, checkout
+from grocery.views import ProductListView, CreateOrderView, OrderListView, OrderDetailView, UserRegisterView, UserProfileView, home, DeliveryListView, DeliveryDetailView, ProductListByCategory, AddToCart, UpdateCart, CreateProductView, SalesActivityView, GoodsSoldOnOfferView, TotalSalesAmountView, ProductListBySubCategory, TopPicksView, NewArrivalsView, OrganicProductsView, SavedItemListCreateView, SavedItemDetailView, ProductSearchView, UserLoginView, CheckoutView
 from MpesaViews.callback import mpesa_payment_callback
 from MpesaViews.initiate_payment import initiate_payment
 from django.conf.urls.static import static
@@ -57,7 +57,7 @@ urlpatterns = [
     path('search/', ProductSearchView.as_view(), name='product_search'),
     path('initiate_payment/', initiate_payment, name='initiate_payment'),
     path('callback/', mpesa_payment_callback, name='callback'),
-    path('checkout/', checkout, name='checkout'),
+    path('checkout/', CheckoutView.as_view(), name='checkout'),
     
     
 

@@ -9,7 +9,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from .forms import UserProfileForm, PaymentForm, LoginForm, CheckoutForm
-from .serializers import ProductSerializer, OrderSerializer, CartItemSerializer, CartSerializer, SavedItemSerializer, LoginSerializer, DeliverySerializer
+from .serializers import ProductSerializer, OrderSerializer, CartItemSerializer, CartSerializer, SavedItemSerializer, LoginSerializer, DeliverySerializer, CheckoutSerializer
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from rest_framework.permissions import IsAuthenticated
@@ -31,14 +31,6 @@ from django.db.models import Q
 
 # logger = logging.getLogger(__name__)
 
-
-def csrf_token_view(request):
-    """
-    View to fetch CSRF token.
-    """
-    csrf_token = get_token(request)
-    
-    return JsonResponse({'csrf_token': csrf_token})
 
 
 class CsrfExemptSessionAuthentication(SessionAuthentication):
@@ -832,23 +824,32 @@ class ProductSearchView(APIView):
 
         return JsonResponse({'products': product_list})
 
-@login_required
-@csrf_exempt
-def checkout(request):
-    if request.method == 'POST':
-        form = CheckoutForm(request.POST)
-        if form.is_valid():
-            contact = form.cleaned_data['contact']
+class CheckoutView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [SessionAuthentication, BasicAuthentication]
+
+    @swagger_auto_schema(
+        request_body=CheckoutSerializer,
+        responses={
+            200: 'Order created successfully',
+            400: 'Invalid form data'
+        }
+    )
+    @csrf_exempt
+    def post(self, request, *args, **kwargs):
+        serializer = CheckoutSerializer(data=request.data)
+        if serializer.is_valid():
+            contact = serializer.validated_data['contact']
             delivery_data = {
-                'country_name': form.cleaned_data['delivery_country_name'],
-                'first_name': form.cleaned_data['delivery_first_name'],
-                'second_name': form.cleaned_data['delivery_second_name'],
-                'address': form.cleaned_data['delivery_address'],
-                'city': form.cleaned_data['delivery_city'],
-                'postal_code': form.cleaned_data['delivery_postal_code'],
-                'phone_number': form.cleaned_data['delivery_phone_number'],
+                'country_name': serializer.validated_data['delivery_country_name'],
+                'first_name': serializer.validated_data['delivery_first_name'],
+                'second_name': serializer.validated_data['delivery_second_name'],
+                'address': serializer.validated_data['delivery_address'],
+                'city': serializer.validated_data['delivery_city'],
+                'postal_code': serializer.validated_data['delivery_postal_code'],
+                'phone_number': serializer.validated_data['delivery_phone_number'],
             }
-            tip_amount = form.cleaned_data['tip_amount']
+            tip_amount = serializer.validated_data['tip_amount']
             
             cart = request.user.cart
             total_price = sum(item.product.price * item.quantity for item in cart.items.all())
@@ -869,7 +870,7 @@ def checkout(request):
             
             cart.items.all().delete()
             
-            return JsonResponse({
+            return Response({
                 'message': 'Order created successfully',
                 'order_id': order.id,
                 'order_details': {
@@ -880,9 +881,5 @@ def checkout(request):
                 }
             })
         else:
-            return JsonResponse({'error': 'Invalid form data'}, status=400)
-    else:
-        form = CheckoutForm()
-    
-    return render(request, 'checkout.html', {'form': form})
-
+            return Response({'error': 'Invalid form data'}, status=400)
+        
