@@ -51,7 +51,7 @@ urlpatterns = [
     path('top-picks/', TopPicksView.as_view()),
     path('new-arrivals/', NewArrivalsView.as_view(), name='new-arrivals'),
     path('organic-products/', OrganicProductsView.as_view(), name='organic-products'),
-    path('get-csrf-token/', csrf_token_view, name='get_csrf_token'),
+    # path('get-csrf-token/', csrf_token_view, name='get_csrf_token'),
     path('saved-items/', SavedItemListCreateView.as_view(), name='saved-items-list-create'),
     path('saved-items/<int:pk>/', SavedItemDetailView.as_view(), name='saved-item-detail'),
     path('search/', ProductSearchView.as_view(), name='product_search'),

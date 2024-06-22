@@ -75,12 +75,15 @@ class CustomUserCreationForm(UserCreationForm):
             return username
         raise forms.ValidationError('This username is already taken. Please choose a different one.')
 
-
 class UserRegisterView(CreateView):
     authentication_classes = [CsrfExemptSessionAuthentication, BasicAuthentication]
     form_class = CustomUserCreationForm
     template_name = 'registration/register.html'
     success_url = '/login/'
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
 
     @swagger_auto_schema(
         operation_id='user_register',
@@ -102,8 +105,15 @@ class UserRegisterView(CreateView):
         """
         Register a new user.
         """
-        json_data = json.loads(request.body)
-        form = self.form_class(json_data)
+        if request.content_type == 'application/json':
+            try:
+                json_data = json.loads(request.body)
+            except json.JSONDecodeError:
+                return JsonResponse({'error': 'Invalid JSON data'}, status=400)
+            form = self.form_class(json_data)
+        else:
+            form = self.form_class(request.POST)
+
         if form.is_valid():
             return self.form_valid(form)
         else:
@@ -122,7 +132,7 @@ class UserRegisterView(CreateView):
         """
         errors = form.errors.as_json()
         return JsonResponse({'errors': errors}, status=400)
-      
+          
 class UserProfileView(APIView):
     authentication_classes = [CsrfExemptSessionAuthentication, BasicAuthentication]
     permission_classes = [AllowAny]
