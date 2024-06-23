@@ -12,6 +12,22 @@ function ProductView() {
   const product = productData.filter((product) => product.id === productId)[0];
   const { id, name, image_url, price, discount, description } = product;
 
+  const addtoCart = useMutation(
+    async (data) => {
+      const response = await axios.post(`${base_url}/add-to-cart`, data, {
+        headers: {
+          "X-CSRFToken": vl.csrfToken,
+        },
+      });
+      return response.data;
+    },
+    {
+      onError: (error) => {
+        toast(`Failed to add item to cart, ${error.response.data?.message}`);
+      },
+    }
+  );
+
   const ProductSection = ({ products, title }) => {
     return (
       <section className="product-section">
@@ -92,12 +108,18 @@ function ProductView() {
                       ) : (
                         <button
                           className="cart-add-btn"
-                          onClick={() =>
+                          onClick={() => {
                             vl.setCartData((prev) => [
                               ...prev,
                               { ...product, quantity: 1 },
                             ])
-                          }
+                            addtoCart.mutate({
+                              product_id: product.id,
+                              quantity: 1,
+                              price: product.price,
+                              offer: product.discount
+                            })
+                          }}
                         >
                           ADD{" "}
                           <span className="material-symbols-outlined">
@@ -118,6 +140,7 @@ function ProductView() {
       </section>
     );
   };
+
 
   const productSections = [
     {
@@ -141,7 +164,15 @@ function ProductView() {
             <span>{vl.formatCurrencyKE(price)}</span>
           </div>
           <div className="pv-instock">Availability: In stock</div>
-          <button className="pv-addtocart">ADD TO CART</button>
+          <button className="pv-addtocart"
+            onClick={ addtoCart.mutate({
+              product_id: id,
+              quantity: 1,
+              price: price,
+              offer: discount
+            })}
+          >ADD TO CART
+          </button>
           <span>Description:</span>
           <p className="pv-description">{description}</p>
         </div>

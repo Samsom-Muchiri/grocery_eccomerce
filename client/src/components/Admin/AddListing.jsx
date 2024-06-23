@@ -7,6 +7,14 @@ function AddListing() {
   const navTo = useNavigate();
   const [selectedImage, setSelectedImage] = useState(null);
   const [subCategories, setSubCategories] = useState([]);
+  const [category, setCategory] = useState('');
+  const [subCategory, setSubCategory] = useState('');
+  const [itemName, setItemName] = useState('');
+  const [itemPrice, setItemPrice] = useState('');
+  const [discount, setDiscount] = useState('');
+  const [quantity, setQuantity] = useState('');
+  const [description, setDescription] = useState('');
+  const [keywords, setKeywords] = useState([]);
 
   const handleImageChange = (e) => {
     const selectedFile = e.target.files[0];
@@ -100,6 +108,38 @@ function AddListing() {
     );
   };
 
+  const addListing = useMutation(
+    async (data) => {
+      const response = await axios.post(`${base_url}/create-product`, data, {
+        headers: {
+          "X-CSRFToken": vl.csrfToken,
+        },
+      });
+      return response.data;
+    },
+    {
+      onError: (error) => {
+        toast(`Failed to create product, ${error.response.data?.message}`);
+      },
+    }
+  );
+
+  const handleAddListing = () => {
+    addListing.mutate({
+      image: selectedImage,
+      category_name: category,
+      subcategory_name: subCategory,
+      name: itemName,
+      price: itemPrice,
+      discount,
+      quantity,
+      description,
+      keywords,
+      availability: true,
+      organic: true,//// Change this value to get from input
+    });
+  };
+
   return (
     <div>
       <section className="a-prod-imagecnt">
@@ -137,7 +177,7 @@ function AddListing() {
           <br />
           <div className="a-category-select">
             <label htmlFor="category">Sub category</label>
-            <select name="sub_category" onChang e={(e) => {}}>
+            <select name="sub_category" onChange={(e) => {}}>
               {subCategories.map((category) => {
                 return <option value={category}>{category}</option>;
               })}
@@ -147,11 +187,21 @@ function AddListing() {
         <div className="a-prd-price">
           <div className="p-input">
             <label>Item name</label>
-            <input type="text" placeholder="name" />
+            <input
+            type="text"
+            placeholder="name"
+            value={itemName}
+            onChange={(e) => setItemName(e.target.value)}
+            />
           </div>
           <div className="p-input">
             <label htmlFor="price">Item price</label>
-            <input name="price" type="number" placeholder="name" />
+            <input
+            name="price"
+            type="number"
+            placeholder="name"
+            value={itemPrice}
+            onChange={(e) => setItemPrice(e.target.value)} />
           </div>
           <div className="p-input">
             <label>
@@ -160,21 +210,34 @@ function AddListing() {
                 <i>Optional</i>
               </small>
             </label>
-            <input name="discount" type="text" placeholder="name" />
+            <input
+            name="discount"
+            type="text"
+            placeholder="name"
+            value={discount}
+            onChange={(e) => setDiscount(e.target.value)}
+            />
           </div>
           <div className="p-input">
             <label htmlFor="name">Quantity</label>
-            <input name="quantity" type="text" placeholder="Quantity" />
+            <input
+            name="quantity"
+            type="text"
+            placeholder="Quantity"
+            value={quantity}
+            onChange={(e) => setQuantity(e.target.value)}
+            />
           </div>
         </div>
-        <KeyWords />
+        <KeyWords keywords={keywords} setKeywords={setKeywords} />
       </section>
       <section className="a-prd-description">
         <label htmlFor="">Description</label>
-        <TextEditor />
+        <TextEditor value={description} onChange={setDescription} />
       </section>
       <section>
-        <button className="a-submit-btn">Submit</button>
+        <button className="a-submit-btn"
+        onClick={ handleAddListing }>Submit</button>
       </section>
     </div>
   );

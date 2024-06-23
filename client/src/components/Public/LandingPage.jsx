@@ -40,6 +40,22 @@ function LandingPage() {
     setFqa(fqaObj);
   }, []);
 
+  const addtoCart = useMutation(
+    async (data) => {
+      const response = await axios.post(`${base_url}/cart`, data, {
+        headers: {
+          "X-CSRFToken": vl.csrfToken,
+        },
+      });
+      return response.data;
+    },
+    {
+      onError: (error) => {
+        toast(`Failed to add item to cart, ${error.response.data?.message}`);
+      },
+    }
+  );
+
   const products = useQuery(
     "products",
     async () => {
