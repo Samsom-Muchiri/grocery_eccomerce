@@ -6,6 +6,7 @@ import { CONT } from "../../AppContext/context";
 import { Link } from "react-router-dom";
 import { base_url } from "../../base_url";
 import axios from "axios";
+import { useMutation, useQuery } from "react-query";
 
 
 function ProductView() {
