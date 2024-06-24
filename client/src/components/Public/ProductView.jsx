@@ -5,6 +5,7 @@ import "../../styles/productview.css";
 import { CONT } from "../../AppContext/context";
 import { Link } from "react-router-dom";
 import { base_url } from "../../base_url";
+import axios from "axios";
 
 
 function ProductView() {
