@@ -11,9 +11,10 @@ function SavedItems() {
   // const savedItems = [];
   const navTo = useNavigate(null);
 
+  // GET products in saved items
   const savedItems = useQuery("savedItems", async () => {
     const response = await axios.get(
-      base_url + "/saved-items",
+      base_url + "/saved-items/",
       {
         headers: {
           "X-CSRFToken": vl.csrfToken,
@@ -21,7 +22,29 @@ function SavedItems() {
       }
     );
     return response.data;
+  },
+  {
+    onError: (error) => {
+      toast(`Failed to get items, ${error.response.data?.error_message}`);
+    },
   });
+
+  // DELETE product from saved items
+  const deleteItem = async (productId) => {
+    try {
+      await axios.delete(
+        `${base_url}/saved-items/${productId}/`,
+        {
+          headers: {
+            "X-CSRFToken": vl.csrfToken,
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Failed to delete item:", error);
+    }
+  };
   
   return (
     <div>
