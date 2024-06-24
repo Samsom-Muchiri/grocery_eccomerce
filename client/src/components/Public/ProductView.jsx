@@ -4,6 +4,8 @@ import { useParams } from "react-router";
 import "../../styles/productview.css";
 import { CONT } from "../../AppContext/context";
 import { Link } from "react-router-dom";
+import { base_url } from "../../base_url";
+
 
 function ProductView() {
   const vl = useContext(CONT);
