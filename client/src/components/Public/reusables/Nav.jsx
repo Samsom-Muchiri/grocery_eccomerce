@@ -55,7 +55,7 @@ function Nav() {
 
   const loginUser = useMutation(
     async (data) => {
-      const response = await axios.post(`${base_url}/login/`, data, {
+      const response = await axios.post(`${base_url}/userlogin/`, data, {
         headers: {
           "X-CSRFToken": vl.csrfToken,
         },
@@ -64,7 +64,7 @@ function Nav() {
     },
     {
       onSuccess: (data) => {
-        toast("Sign up successful");
+        toast("Login successful");
         vl.setUserIsLoged(true);
         setSignUpOpen(false);
       },
@@ -163,7 +163,7 @@ function Nav() {
 
             loginUser.mutate({
               username: formData.get("username"),
-              password1: formData.get("password1"),
+              password: formData.get("password1"),
             });
           }}
         >
