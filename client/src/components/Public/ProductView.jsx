@@ -174,7 +174,7 @@ function ProductView() {
           </div>
           <div className="pv-instock">Availability: In stock</div>
           <button className="pv-addtocart"
-            onClick={ handleAddToCart({
+            onClick={() => handleAddToCart({
               product_id: id,
               quantity: 1,
               price: price,
