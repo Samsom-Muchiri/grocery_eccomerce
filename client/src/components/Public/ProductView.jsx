@@ -4,6 +4,10 @@ import { useParams } from "react-router";
 import "../../styles/productview.css";
 import { CONT } from "../../AppContext/context";
 import { Link } from "react-router-dom";
+import { base_url } from "../../base_url";
+import axios from "axios";
+import { useMutation, useQuery } from "react-query";
+
 
 function ProductView() {
   const vl = useContext(CONT);
@@ -14,7 +18,7 @@ function ProductView() {
 
   const addtoCart = useMutation(
     async (data) => {
-      const response = await axios.post(`${base_url}/add-to-cart`, data, {
+      const response = await axios.post(`${base_url}/add-to-cart/`, data, {
         headers: {
           "X-CSRFToken": vl.csrfToken,
         },
@@ -27,6 +31,10 @@ function ProductView() {
       },
     }
   );
+
+  const handleAddToCart = (data) => {
+    addtoCart.mutate(data);
+  };
 
   const ProductSection = ({ products, title }) => {
     return (
@@ -108,17 +116,18 @@ function ProductView() {
                       ) : (
                         <button
                           className="cart-add-btn"
-                          onClick={() => {
+                          onClick={(e) => {
+                            e.preventDefault();
                             vl.setCartData((prev) => [
                               ...prev,
                               { ...product, quantity: 1 },
-                            ])
-                            addtoCart.mutate({
+                            ]);
+                            handleAddToCart({
                               product_id: product.id,
                               quantity: 1,
                               price: product.price,
                               offer: product.discount
-                            })
+                            });
                           }}
                         >
                           ADD{" "}
@@ -165,7 +174,7 @@ function ProductView() {
           </div>
           <div className="pv-instock">Availability: In stock</div>
           <button className="pv-addtocart"
-            onClick={ addtoCart.mutate({
+            onClick={ handleAddToCart({
               product_id: id,
               quantity: 1,
               price: price,
