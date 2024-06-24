@@ -11,6 +11,7 @@ function SavedItems() {
   // const savedItems = [];
   const navTo = useNavigate(null);
 
+  // GET products in saved items
   const savedItems = useQuery("savedItems", async () => {
     const response = await axios.get(
       base_url + "/saved-items",

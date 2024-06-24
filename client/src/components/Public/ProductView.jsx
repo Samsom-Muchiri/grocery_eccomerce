@@ -16,6 +16,7 @@ function ProductView() {
   const product = productData.filter((product) => product.id === productId)[0];
   const { id, name, image_url, price, discount, description } = product;
 
+  // POST request to add item to CART
   const addtoCart = useMutation(
     async (data) => {
       const response = await axios.post(`${base_url}/add-to-cart/`, data, {
@@ -28,6 +29,23 @@ function ProductView() {
     {
       onError: (error) => {
         toast(`Failed to add item to cart, ${error.response.data?.message}`);
+      },
+    }
+  );
+
+  /// POST request to save item in Saved items
+  const addtoSaved = useMutation(
+    async (data) => {
+      const response = await axios.post(`${base_url}/saved-items/`, data, {
+        headers: {
+          "X-CSRFToken": vl.csrfToken,
+        },
+      });
+      return response.data;
+    },
+    {
+      onError: (error) => {
+        toast(`Failed to save product, ${error.response.data?.message}`);
       },
     }
   );
