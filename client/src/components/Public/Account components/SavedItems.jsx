@@ -1,4 +1,4 @@
-import React, { Fragment, useContext, useRef } from "react";
+import React, { Fragment, useContext } from "react";
 import { useNavigate } from "react-router";
 import { CONT } from "../../../AppContext/context";
 import { base_url } from "../../../base_url";
@@ -22,11 +22,6 @@ function SavedItems() {
     );
     return response.data;
   });
-
-  const menuDataRef = useRef(menuData);
-  useEffect(() => {
-    menuDataRef.current = menuData;
-  }, [menuData]);
   
   return (
     <div>
