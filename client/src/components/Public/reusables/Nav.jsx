@@ -35,9 +35,9 @@ function Nav() {
   const registerUser = useMutation(
     async (data) => {
       const response = await axios.post(`${base_url}/register/`, data, {
-        headers: {
-          "X-CSRFToken": vl.csrfToken,
-        },
+        // headers: {
+        //   "X-CSRFToken": vl.csrfToken,
+        // },
       });
       return response.data;
     },
