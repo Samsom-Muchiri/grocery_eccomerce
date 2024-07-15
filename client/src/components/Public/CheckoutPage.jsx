@@ -2,12 +2,34 @@ import React, { useContext, useRef, useState } from "react";
 import "../../styles/checkoutpage.css";
 import { CONT } from "../../AppContext/context";
 import { useNavigate } from "react-router";
+import { useMutation, useQuery } from "react-query";
+import { base_url } from "../../base_url";
+import axios from "axios";
 
 function CheckoutPage() {
   const vl = useContext(CONT);
   const navTo = useNavigate(null);
   const [tip, setTip] = useState({ type: "none", value: "0" });
   const payButtonRef = useRef(null);
+
+  // POST request for checkout
+  const checkOut = useMutation(
+    async (data) => {
+      const response = await axios.post(`${base_url}/checkout/`, data, {
+        headers: {
+          "X-CSRFToken": vl.csrfToken,
+        },
+      });
+      vl.setOrderDetails({ ...data, total: tip.value + vl.cartTotal });
+      return response.data;
+    },
+    {
+      onError: (error) => {
+        toast(`Failed to checkout, ${error.response.data?.message}`);
+      },
+    }
+  );
+
   return (
     <div className="chakout-cnt">
       <form
@@ -19,7 +41,9 @@ function CheckoutPage() {
           for (const [key, value] of formData.entries()) {
             data[key] = value;
           }
-          vl.setOrderDetails({ ...data, total: tip.value + vl.cartTotal });
+          // Pass data to checkout
+          checkOut.mutate(data);
+          // vl.setOrderDetails({ ...data, total: tip.value + vl.cartTotal });
           navTo("/chekout/payment");
         }}
       >
