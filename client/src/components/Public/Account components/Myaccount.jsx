@@ -3,6 +3,20 @@ import { useNavigate } from "react-router";
 
 function Myaccount() {
   const navTo = useNavigate(null);
+
+  // GET the profile data
+  const accountData = useQuery(
+    "accountData",
+    async () => {
+      const response = await axios.get(`${base_url}/profile/`, {
+        headers: {
+          Authorization: `Bearer ${vl.token}`,
+        },
+      });
+      return response.data;
+    }
+  );
+
   return (
     <div>
       <section className="ac-sec-head">
