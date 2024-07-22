@@ -126,7 +126,7 @@ class UserRegisterView(CreateView):
         return JsonResponse({'errors': errors}, status=400)
           
 class UserProfileView(APIView):
-    authentication_classes = [CsrfExemptSessionAuthentication, BasicAuthentication]
+    authentication_classes = [CsrfExemptSessionAuthentication, JsonSessionAuthentication]
     permission_classes = [AllowAny]
     
     @method_decorator(login_required)
@@ -217,7 +217,7 @@ class UserLoginView(APIView):
                 return render(request, self.template_name, {'form': form, 'error': 'Invalid login credentials'})
             
 class ProductListView(APIView):
-    authentication_classes = [CsrfExemptSessionAuthentication, BasicAuthentication]
+    authentication_classes = [CsrfExemptSessionAuthentication, JsonSessionAuthentication]
     
     @swagger_auto_schema(operation_id='list_products', responses={200: openapi.Response(description="List of products", schema=ProductSerializer(many=True))})
     def get(self, request):
@@ -230,7 +230,7 @@ class ProductListView(APIView):
     
 
 class OrderListView(APIView):
-    authentication_classes = [CsrfExemptSessionAuthentication, BasicAuthentication]
+    authentication_classes = [CsrfExemptSessionAuthentication, JsonSessionAuthentication]
     permission_classes = [IsAuthenticated]
 
     @swagger_auto_schema(operation_id='list_orders', responses={200: openapi.Response(description="List of orders", schema=OrderSerializer(many=True))})
@@ -244,7 +244,7 @@ class OrderListView(APIView):
 
 class SavedItemListCreateView(generics.ListCreateAPIView):
     serializer_class = SavedItemSerializer
-    authentication_classes = [CsrfExemptSessionAuthentication, BasicAuthentication]
+    authentication_classes = [CsrfExemptSessionAuthentication, JsonSessionAuthentication]
     permission_classes = [IsAuthenticated]
 
     @swagger_auto_schema(
@@ -270,7 +270,7 @@ class SavedItemListCreateView(generics.ListCreateAPIView):
 
 class SavedItemDetailView(generics.DestroyAPIView):
     serializer_class = SavedItemSerializer
-    authentication_classes = [CsrfExemptSessionAuthentication, BasicAuthentication]
+    authentication_classes = [CsrfExemptSessionAuthentication, JsonSessionAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
@@ -284,7 +284,7 @@ class SavedItemDetailView(generics.DestroyAPIView):
         return super().delete(request, *args, **kwargs)
     
 class OrderDetailView(APIView):
-    authentication_classes = [CsrfExemptSessionAuthentication, BasicAuthentication]
+    authentication_classes = [CsrfExemptSessionAuthentication, JsonSessionAuthentication]
     permission_classes = [IsAuthenticated]
 
     
@@ -306,7 +306,7 @@ class OrderDetailView(APIView):
             return Response({'error': 'Order not found'}, status=status.HTTP_404_NOT_FOUND)
         
 class CreateOrderView(APIView):
-    authentication_classes = [CsrfExemptSessionAuthentication, BasicAuthentication]
+    authentication_classes = [CsrfExemptSessionAuthentication, JsonSessionAuthentication]
     permission_classes = [IsAuthenticated]
 
 
@@ -353,7 +353,7 @@ class CreateOrderView(APIView):
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 class DeliveryListView(APIView):
-    authentication_classes = [CsrfExemptSessionAuthentication, BasicAuthentication]
+    authentication_classes = [CsrfExemptSessionAuthentication, JsonSessionAuthentication]
     permission_classes = [IsAuthenticated]
 
     @swagger_auto_schema(
@@ -423,7 +423,7 @@ class DeliveryListView(APIView):
             return Response({'error': 'Delivery not found'}, status=status.HTTP_404_NOT_FOUND)
 
 class DeliveryDetailView(APIView):
-    authentication_classes = [CsrfExemptSessionAuthentication, BasicAuthentication]
+    authentication_classes = [CsrfExemptSessionAuthentication, JsonSessionAuthentication]
     permission_classes = [IsAuthenticated]
     
     @swagger_auto_schema(
@@ -493,7 +493,7 @@ class ProductListBySubCategory(generics.ListAPIView):
         
 
 class AddToCart(APIView):
-    authentication_classes = [CsrfExemptSessionAuthentication, BasicAuthentication]
+    authentication_classes = [CsrfExemptSessionAuthentication, JsonSessionAuthentication]
     permission_classes = [IsAuthenticated]
 
     @swagger_auto_schema(
@@ -550,7 +550,7 @@ class AddToCart(APIView):
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 class UpdateCart(APIView):
-    authentication_classes = [CsrfExemptSessionAuthentication, BasicAuthentication]
+    authentication_classes = [CsrfExemptSessionAuthentication, JsonSessionAuthentication]
     permission_classes = [IsAuthenticated]
 
     @swagger_auto_schema(
@@ -615,7 +615,7 @@ class UpdateCart(APIView):
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
         
 class CreateProductView(APIView):
-    authentication_classes = [CsrfExemptSessionAuthentication, BasicAuthentication]
+    authentication_classes = [CsrfExemptSessionAuthentication, JsonSessionAuthentication]
     permission_classes = [IsAuthenticated]
 
     @swagger_auto_schema(
@@ -639,7 +639,7 @@ class CreateProductView(APIView):
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 class SalesActivityView(APIView):
-    authentication_classes = [CsrfExemptSessionAuthentication, BasicAuthentication]
+    authentication_classes = [CsrfExemptSessionAuthentication, JsonSessionAuthentication]
     permission_classes = [IsAuthenticated]
 
     @swagger_auto_schema(
@@ -670,7 +670,7 @@ class SalesActivityView(APIView):
         })
 
 class GoodsSoldOnOfferView(APIView):
-    authentication_classes = [CsrfExemptSessionAuthentication, BasicAuthentication]
+    authentication_classes = [CsrfExemptSessionAuthentication, JsonSessionAuthentication]
     permission_classes = [IsAuthenticated]
 
     @swagger_auto_schema(
@@ -701,7 +701,7 @@ class GoodsSoldOnOfferView(APIView):
         })
 
 class TotalSalesAmountView(APIView):
-    authentication_classes = [CsrfExemptSessionAuthentication, BasicAuthentication]
+    authentication_classes = [CsrfExemptSessionAuthentication, JsonSessionAuthentication]
     permission_classes = [IsAuthenticated]
 
     @swagger_auto_schema(
@@ -813,7 +813,7 @@ class ProductSearchView(APIView):
 
 class CheckoutView(APIView):
     permission_classes = [IsAuthenticated]
-    authentication_classes = [SessionAuthentication, BasicAuthentication]
+    authentication_classes = [SessionAuthentication, JsonSessionAuthentication]
 
     @swagger_auto_schema(
         request_body=CheckoutSerializer,
