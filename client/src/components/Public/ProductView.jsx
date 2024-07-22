@@ -200,6 +200,14 @@ function ProductView() {
             })}
           >ADD TO CART
           </button>
+          {/* Button to SAve item*/}
+          <button className="pv-addtocart"
+            onClick={() => addtoSaved.mutate({
+              product: id,
+              session_id: vl.csrfToken
+            })}
+          >Save
+          </button>
           <span>Description:</span>
           <p className="pv-description">{description}</p>
         </div>

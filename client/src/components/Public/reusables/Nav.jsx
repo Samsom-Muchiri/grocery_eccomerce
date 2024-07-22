@@ -56,10 +56,11 @@ function Nav() {
   const loginUser = useMutation(
     async (data) => {
       const response = await axios.post(`${base_url}/userlogin/`, data, {
-        headers: {
-          "X-CSRFToken": vl.csrfToken,
-        },
+        // headers: {
+        //   "X-CSRFToken": vl.csrfToken,
+        // },
       });
+      vl.setCsrfToken(response.data.session_id);
       return response.data;
     },
     {
@@ -67,6 +68,8 @@ function Nav() {
         toast("Login successful");
         vl.setUserIsLoged(true);
         setSignUpOpen(false);
+        Cookies.set("token", data.session_id);
+        // vl.setCsrfToken(data.session_id);
       },
       onError: (error) => {
         toast(`Failed to login, ${error.response.data?.error_message}`);
