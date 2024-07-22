@@ -11,6 +11,8 @@ import axios from "axios";
 import Loader from "../../Reusables/Loader";
 import { base_url } from "../../../base_url";
 import Footer from "./Footer";
+import Cookies from "js-cookie";
+
 
 function Nav() {
   const vl = useContext(CONT);
@@ -48,7 +50,7 @@ function Nav() {
         setSignUpOpen(false);
       },
       onError: (error) => {
-        toast(`Failed to add user, ${error.response.data?.message}`);
+        toast(`Failed to add user, ${error.response.data?.error_message}`);
       },
     }
   );
@@ -70,6 +72,7 @@ function Nav() {
         setSignUpOpen(false);
         Cookies.set("token", data.session_id);
         // vl.setCsrfToken(data.session_id);
+        localStorage.setItem("session_id", data.session_id);
       },
       onError: (error) => {
         toast(`Failed to login, ${error.response.data?.error_message}`);
