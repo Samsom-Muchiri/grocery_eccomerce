@@ -525,13 +525,14 @@ class AddToCart(APIView):
         try:
             product_id = request.data.get('product_id')
             quantity = request.data.get('quantity', 1)
-            offer = request.data.get('offer')
-
+            
             product = Product.objects.get(id=product_id)
             
-            cart, created = Cart.objects.get_or_create(user=request.user)
-            price = request.data.get('price', product.price)
+            price = product.price
+            offer = product.discount
 
+            cart, created = Cart.objects.get_or_create(user=request.user)
+            
             for _ in range(quantity):
                 cart_item, _ = CartItem.objects.get_or_create(cart=cart, product=product)
 
