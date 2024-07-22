@@ -11,7 +11,9 @@ function AddButton({ type = "small", product }) {
   const postCartData = useMutation(
     async (data) => {
       const response = await axios.post(base_url + "/add-to-cart/", data, {
-        headers: "",
+        headers: {
+          "Content-Type": "application/json",
+        },
       });
       return response.data;
     },
@@ -26,8 +28,11 @@ function AddButton({ type = "small", product }) {
   );
 
   function addToCart() {
+
+    const session_id = localStorage.getItem('session_id');
+
     if (vl.userIsLoged) {
-      postCartData.mutate(product);
+      postCartData.mutate({ ...product, session_id });
     } else {
       vl.setCartData((prev) => [...prev, { ...product, quantity: 1 }]);
       localStorage.setItem("cart_data", JSON.stringify(vl.cartData));
