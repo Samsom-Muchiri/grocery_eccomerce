@@ -228,19 +228,6 @@ class ProductListView(APIView):
         serializer = ProductSerializer(products, many=True, context={'request': request})
         return Response(serializer.data)
     
-class SavedItemListCreateView(generics.ListCreateAPIView):
-    serializer_class = SavedItemSerializer
-    authentication_classes = [CsrfExemptSessionAuthentication, BasicAuthentication]
-    permission_classes = [IsAuthenticated]
-
-
-    @swagger_auto_schema(operation_id='list_saved_products', responses={200: openapi.Response(description="List of saved products", schema=SavedItemSerializer(many=True))})
-
-    def get_queryset(self):
-        return SavedItem.objects.filter(user=self.request.user)
-
-    def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
 
 class OrderListView(APIView):
     authentication_classes = [CsrfExemptSessionAuthentication, BasicAuthentication]
