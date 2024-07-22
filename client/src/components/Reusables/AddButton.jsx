@@ -31,8 +31,15 @@ function AddButton({ type = "small", product }) {
 
     const session_id = localStorage.getItem('session_id');
 
+    const cartData = {
+      product_id: id,
+      quantity: 1,
+      // price: price, 
+      // offer: discount,
+    };
+
     if (vl.userIsLoged) {
-      postCartData.mutate({ ...product, session_id });
+      postCartData.mutate({ ...cartData, session_id });
     } else {
       vl.setCartData((prev) => [...prev, { ...product, quantity: 1 }]);
       localStorage.setItem("cart_data", JSON.stringify(vl.cartData));
