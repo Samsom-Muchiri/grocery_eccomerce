@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Product, Order, Delivery, Cart, MpesaResponseBody, Payment, MobileMoneyPayment, Category, Tip, Subcategory, SavedItem
+from .models import Product, Order, Delivery, Cart, MpesaResponseBody, Payment, MobileMoneyPayment, Category, Tip, Subcategory, SavedItem, CartItem
 
 
 class SavedItemSerializer(serializers.ModelSerializer):
@@ -146,3 +146,7 @@ class CheckoutSerializer(serializers.Serializer):
     delivery_phone_number = serializers.CharField()
     tip_amount = serializers.DecimalField(max_digits=10, decimal_places=2)
     
+class CartItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CartItem
+        fields = '__all__'

@@ -39,7 +39,12 @@ class CsrfExemptSessionAuthentication(SessionAuthentication):
 
 class JsonSessionAuthentication(BaseAuthentication):
     def authenticate(self, request):
-        session_key = request.data.get('session_id')
+        session_key = request.headers.get('session_id')
+        
+        if not session_key:
+            session_key = request.data.get('session_id')
+
+
         if session_key:
             try:
                 session = SessionStore(session_key=session_key)
@@ -870,4 +875,19 @@ class CheckoutView(APIView):
             })
         else:
             return Response({'error': 'Invalid form data'}, status=400)
-        
+
+class CartItemsView(generics.ListAPIView):
+    serializer_class = CartItemSerializer
+    authentication_classes = [CsrfExemptSessionAuthentication, JsonSessionAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    @swagger_auto_schema(
+        operation_id='list_cart_items',
+        responses={200: openapi.Response(description="List of cart items", schema=CartItemSerializer(many=True))}
+    )
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
+    def get_queryset(self):
+        return CartItem.objects.filter(cart__user=self.request.user)
+    
