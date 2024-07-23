@@ -3,7 +3,7 @@ from django.urls import path
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
-from grocery.views import ProductListView, CreateOrderView, OrderListView, OrderDetailView, UserRegisterView, UserProfileView, home, DeliveryListView, DeliveryDetailView, ProductListByCategory, AddToCart, UpdateCart, CreateProductView, SalesActivityView, GoodsSoldOnOfferView, TotalSalesAmountView, ProductListBySubCategory, TopPicksView, NewArrivalsView, OrganicProductsView, SavedItemListCreateView, SavedItemDetailView, ProductSearchView, UserLoginView, CheckoutView
+from grocery.views import ProductListView, CreateOrderView, OrderListView, OrderDetailView, UserRegisterView, UserProfileView, home, DeliveryListView, DeliveryDetailView, ProductListByCategory, AddToCart, UpdateCart, CreateProductView, SalesActivityView, GoodsSoldOnOfferView, TotalSalesAmountView, ProductListBySubCategory, TopPicksView, NewArrivalsView, OrganicProductsView, SavedItemListCreateView, SavedItemDetailView, ProductSearchView, UserLoginView, CheckoutView, CartItemsView
 from MpesaViews.callback import mpesa_payment_callback
 from MpesaViews.initiate_payment import initiate_payment
 from django.conf.urls.static import static
@@ -51,6 +51,7 @@ urlpatterns = [
     path('top-picks/', TopPicksView.as_view()),
     path('new-arrivals/', NewArrivalsView.as_view(), name='new-arrivals'),
     path('organic-products/', OrganicProductsView.as_view(), name='organic-products'),
+    path('cart-items/', CartItemsView.as_view(), name='cart-items-list'),
     # path('get-csrf-token/', csrf_token_view, name='get_csrf_token'),
     path('saved-items/', SavedItemListCreateView.as_view(), name='saved-items-list-create'),
     path('saved-items/<int:pk>/', SavedItemDetailView.as_view(), name='saved-item-detail'),
